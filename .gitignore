@@ -1,0 +1,9 @@
+# hugo
+docs/resources/_gen
+
+# out
+out/*
+!out/.gitkeep
+
+# Mac
+.DS_Store
