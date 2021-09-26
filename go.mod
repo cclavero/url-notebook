@@ -1,4 +1,4 @@
-module ni/publish-pdf
+module github.com/cclavero/url-notebook
 
 go 1.16
 

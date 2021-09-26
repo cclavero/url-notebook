@@ -63,4 +63,13 @@ $ docker run -u 1000:1000 -v `pwd`:/out --network ni-net openlabs/docker-wkhtmlt
 $ docker run -u 1000:1000 -v `pwd`:/out --network ni-net openlabs/docker-wkhtmltopdf:v0.12 --print-media-type http://notes-inxes:1313/docs/do-met-gallec/ /out/out-docker.pdf
 
 
+--- TEMPORAL
 
+https://www.loginradius.com/blog/async/build-push-docker-images-golang/
+
+
+
+---- TEMPORAL
+
+$ cd build
+$ ./url-notebook targetPath=../out urlNotebookFile=../test/url-notebook-test1.yaml

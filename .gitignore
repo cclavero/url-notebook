@@ -1,5 +1,6 @@
-# hugo
-docs/resources/_gen
+# build
+build/*
+!build/.gitkeep
 
 # out
 out/*

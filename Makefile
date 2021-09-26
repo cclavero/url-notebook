@@ -1,12 +1,6 @@
 
 # Env & Vars --------------------------------------------------------
 
-version = 1.0
-
-pwd = $(shell pwd)
-userUID = $(shell id -u)
-userGID = $(shell id -g)
-
 # Tasks -------------------------------------------------------------
 
 ## # Help task --------------------------------------------------
@@ -25,14 +19,22 @@ help: Makefile
 ## clean			Clean the docker image
 clean:
 	@echo "\n> Clean";
-	docker rmi url-notebook:$(version) || true;
+	docker rmi url-notebook:local || true;
 
-## build			Build the docker image
+## build			Build the url-notebook cammand
+.PHONY: build
 build:
 	@echo "\n> Build";
-	docker build -f ./Dockerfile --tag url-notebook:$(version) .;
+	go build -o ./build/url-notebook ./cmd/main.go;
 
-## run		Run the url-notebook command
+## run			Run the url-notebook command
 run:
 	@echo "\n> Run";
-	go run main.go targetPath=$(pwd)/out userUID=$(userUID) userGID=$(userGID) dockerExtraParams="--network ni-net"
+	go run ./cmd/main.go targetPath=./out urlNotebookFile=./test/url-notebook-test1.yaml # dockerExtraParams="--network ni-net";
+
+## install		Install the url-notebook command
+install: build
+	@echo "\n> Install";
+	sudo cp ./build/url-notebook /usr/local/bin;
+	ls -lah /usr/local/bin/url-notebook;
+	url-notebook -v;
