@@ -19,7 +19,7 @@ help: Makefile
 ## clean			Clean the docker image
 clean:
 	@echo "\n> Clean";
-	docker rmi url-notebook:local || true;
+	docker rmi wkhtmltopdf:notes-inxes || true;
 
 ## build			Build the url-notebook cammand
 .PHONY: build
@@ -28,9 +28,10 @@ build:
 	go build -o ./build/url-notebook ./cmd/main.go;
 
 ## run			Run the url-notebook command
+# TEMPORAL: dockerExtraParams="--network ni-net";
 run:
 	@echo "\n> Run";
-	go run ./cmd/main.go targetPath=./out urlNotebookFile=./test/url-notebook-test1.yaml # dockerExtraParams="--network ni-net";
+	go run ./cmd/main.go urlNotebookFile=./pdf/url-notebook-test-1.yaml targetPath=./pdf/test-1 dockerExtraParams="";
 
 ## install		Install the url-notebook command
 install: build

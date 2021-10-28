@@ -88,3 +88,8 @@ func getPublishData(urlNotebookFile string) (*PublishData, error) {
 
 	return publishData, nil
 }
+
+func GetCmdConfigInfo(cmdConfig *CmdConfig) string {
+	return fmt.Sprintf("\n- userUID: %s\n- userGID: %s\n- targetPath: %s\n- dockerExtraParams: %s\n- publishData: %+v\n",
+		cmdConfig.UserUID, cmdConfig.UserGID, cmdConfig.TargetPath, cmdConfig.DockerExtraParams, cmdConfig.PublishData)
+}

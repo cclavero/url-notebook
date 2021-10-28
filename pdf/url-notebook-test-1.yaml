@@ -1,10 +1,13 @@
 publish:
-  file: url-notebook.pdf # Name of the final PDF file
-  urls: # List of URLs to process
+  # Name of the final PDF file
+  file: test-1.pdf
+  # List of URLs to process
+  urls: 
     - url: https://gohugo.io/content-management/organization/
       file: note-1.pdf
     - url: https://gohugo.io/content-management/page-bundles/
       file: note-2.pdf
     - url: https://gohugo.io/content-management/formats/
       file: note-3.pdf
-  wkhtmltopdfParams: --print-media-type --margin-top 20mm --margin-bottom 20mm # Parameters for the wkhtmltopdf utility
+  # Parameters for the wkhtmltopdf utility    
+  wkhtmltopdfParams: --print-media-type --margin-top 20mm --margin-bottom 20mm 

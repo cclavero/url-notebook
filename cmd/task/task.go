@@ -9,7 +9,11 @@ import (
 	"github.com/cclavero/url-notebook/cmd/config"
 )
 
-func ExecCleanTask(cmdConfig *config.CmdConfig) error {
+const (
+	urlFolder = "url"
+)
+
+func InitTargetPath(cmdConfig *config.CmdConfig) error {
 	var files []string
 	var err error
 	if files, err = filepath.Glob(filepath.Join(cmdConfig.TargetPath, "*.pdf")); err != nil {
@@ -20,6 +24,13 @@ func ExecCleanTask(cmdConfig *config.CmdConfig) error {
 			return fmt.Errorf("error deleting file: %s; %s", file, err)
 		}
 	}
+
+	// TEMPORAL
+	targetURLFolder := filepath.Join(cmdConfig.TargetPath, urlFolder)
+	if err := os.MkdirAll(targetURLFolder, os.ModePerm); err != nil {
+		panic(fmt.Sprintf("Error: Creating the target url folder: %s", err))
+	}
+
 	return nil
 }
 

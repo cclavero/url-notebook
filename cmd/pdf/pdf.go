@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	DOCKERFILE = `<<EOF
+	dockerFile = `<<EOF
 FROM ubuntu:20.04
 
 RUN apt-get update && \
@@ -25,23 +25,23 @@ ENTRYPOINT ["wkhtmltopdf"]
 CMD ["-h"]
 EOF
 `
-	DOCKER_IMAGE           = "url-notebook:local"
-	DOCKER_CHECK_CMD       = "docker version"
-	DOCKER_CHECK_IMAGE_CMD = "docker image inspect " + DOCKER_IMAGE
-	DOCKER_BUILD_CMD       = "docker build --tag " + DOCKER_IMAGE + " -f - . %s"
-	DOCKER_RUN_CMD         = "docker run -u %s:%s -v %s:/out %s --rm " + DOCKER_IMAGE + " %s %s /out/%s"
+	dockerImage         = "wkhtmltopdf:notes-inxes"
+	dockerCheckCmd      = "docker version"
+	dockerCheckImageCmd = "docker image inspect " + dockerImage
+	dockerBuildCmd      = "docker build --tag " + dockerImage + " -f - . %s"
+	dockerRunCmd        = "docker run -u %s:%s -v %s:/out %s --rm " + dockerImage + " %s %s /out/%s"
 )
 
 func BuildWkhtmltopdfDocker() error {
 	// Check docker is installed
-	if _, err := task.ExecSystemCommand(DOCKER_CHECK_CMD); err != nil {
+	if _, err := task.ExecSystemCommand(dockerCheckCmd); err != nil {
 		return fmt.Errorf("checking docker is installed: %s", err)
 	}
 
 	// Check if the docker image exists
-	if _, err := task.ExecSystemCommand(DOCKER_CHECK_IMAGE_CMD); err != nil {
-		dockerBuildCmd := fmt.Sprintf(DOCKER_BUILD_CMD, DOCKERFILE)
-		_, err := task.ExecSystemCommand(dockerBuildCmd)
+	if _, err := task.ExecSystemCommand(dockerCheckImageCmd); err != nil {
+		dockerBuildCmdCmd := fmt.Sprintf(dockerBuildCmd, dockerFile)
+		_, err := task.ExecSystemCommand(dockerBuildCmdCmd)
 		if err != nil {
 			return fmt.Errorf("building wkhtmltopdf docker image: %s", err)
 		}
@@ -50,10 +50,11 @@ func BuildWkhtmltopdfDocker() error {
 	return nil
 }
 
-func PublishURLAsPDF(cmdConfig *config.CmdConfig, publishURL config.PublishURL) error {
-	dockerRunCmd := fmt.Sprintf(DOCKER_RUN_CMD, cmdConfig.UserUID, cmdConfig.UserGID, cmdConfig.TargetPath,
+func PublishURLAsPDF(cmdConfig *config.CmdConfig, index int, publishURL config.PublishURL) error {
+	fmt.Printf("[%d] Publishing %s to %s ...\n", index, publishURL.URL, publishURL.File)
+	dockerRunCmdCmd := fmt.Sprintf(dockerRunCmd, cmdConfig.UserUID, cmdConfig.UserGID, cmdConfig.TargetPath,
 		cmdConfig.DockerExtraParams, cmdConfig.PublishData.WkhtmltopdfParams, publishURL.URL, publishURL.File)
-	if _, err := task.ExecSystemCommand(dockerRunCmd); err != nil {
+	if _, err := task.ExecSystemCommand(dockerRunCmdCmd); err != nil {
 		return fmt.Errorf("generating PDF file: %s", err)
 	}
 	return nil
