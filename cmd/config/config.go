@@ -10,6 +10,10 @@ import (
 	"github.com/spf13/viper"
 )
 
+const (
+	urlFolder = "url"
+)
+
 type PublishURL struct {
 	URL  string `yaml:"url"`
 	File string `yaml:"file"`
@@ -25,6 +29,7 @@ type CmdConfig struct {
 	UserUID           string
 	UserGID           string
 	TargetPath        string
+	TargetPathURL     string
 	DockerExtraParams string
 	PublishData       *PublishData
 }
@@ -54,6 +59,7 @@ func GetCmdConfig() (*CmdConfig, error) {
 		UserUID:           strconv.Itoa(os.Getuid()),
 		UserGID:           strconv.Itoa(os.Getgid()),
 		TargetPath:        targetPath,
+		TargetPathURL:     filepath.Join(targetPath, urlFolder),
 		DockerExtraParams: params["dockerExtraParams"],
 	}
 
@@ -90,6 +96,7 @@ func getPublishData(urlNotebookFile string) (*PublishData, error) {
 }
 
 func GetCmdConfigInfo(cmdConfig *CmdConfig) string {
-	return fmt.Sprintf("\n- userUID: %s\n- userGID: %s\n- targetPath: %s\n- dockerExtraParams: %s\n- publishData: %+v\n",
-		cmdConfig.UserUID, cmdConfig.UserGID, cmdConfig.TargetPath, cmdConfig.DockerExtraParams, cmdConfig.PublishData)
+	return fmt.Sprintf("\n- userUID: %s\n- userGID: %s\n- targetPath: %s\n- targetPathURL: %s\n- dockerExtraParams: %s\n- publishData: %+v\n",
+		cmdConfig.UserUID, cmdConfig.UserGID, cmdConfig.TargetPath, cmdConfig.TargetPathURL,
+		cmdConfig.DockerExtraParams, cmdConfig.PublishData)
 }

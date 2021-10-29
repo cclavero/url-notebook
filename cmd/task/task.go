@@ -9,11 +9,15 @@ import (
 	"github.com/cclavero/url-notebook/cmd/config"
 )
 
-const (
-	urlFolder = "url"
-)
-
 func InitTargetPath(cmdConfig *config.CmdConfig) error {
+	fmt.Printf("Check target path: %s\n", cmdConfig.TargetPath)
+
+	// target path
+	if _, err := os.Stat(cmdConfig.TargetPath); os.IsNotExist(err) {
+		if err := os.MkdirAll(cmdConfig.TargetPath, os.ModePerm); err != nil {
+			return fmt.Errorf("creating the target path: %s", err)
+		}
+	}
 	var files []string
 	var err error
 	if files, err = filepath.Glob(filepath.Join(cmdConfig.TargetPath, "*.pdf")); err != nil {
@@ -25,10 +29,14 @@ func InitTargetPath(cmdConfig *config.CmdConfig) error {
 		}
 	}
 
-	// TEMPORAL
-	targetURLFolder := filepath.Join(cmdConfig.TargetPath, urlFolder)
-	if err := os.MkdirAll(targetURLFolder, os.ModePerm); err != nil {
-		panic(fmt.Sprintf("Error: Creating the target url folder: %s", err))
+	// target path url
+	if _, err := os.Stat(cmdConfig.TargetPathURL); !os.IsNotExist(err) {
+		if err := os.Remove(cmdConfig.TargetPathURL); err != nil {
+			return fmt.Errorf("deleting the target path URL: %s", err)
+		}
+	}
+	if err := os.MkdirAll(cmdConfig.TargetPathURL, os.ModePerm); err != nil {
+		return fmt.Errorf("creating the target url folder: %s", err)
 	}
 
 	return nil

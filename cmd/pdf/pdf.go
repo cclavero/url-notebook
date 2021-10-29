@@ -51,8 +51,11 @@ func BuildWkhtmltopdfDocker() error {
 }
 
 func PublishURLAsPDF(cmdConfig *config.CmdConfig, index int, publishURL config.PublishURL) error {
-	fmt.Printf("[%d] Publishing %s to %s ...\n", index, publishURL.URL, publishURL.File)
-	dockerRunCmdCmd := fmt.Sprintf(dockerRunCmd, cmdConfig.UserUID, cmdConfig.UserGID, cmdConfig.TargetPath,
+
+	// TEMPORAL
+	targetFile := filepath.Join(cmdConfig.TargetPathURL, publishURL.File)
+	fmt.Printf("[%d] Publishing %s to %s ...\n", index, publishURL.URL, targetFile)
+	dockerRunCmdCmd := fmt.Sprintf(dockerRunCmd, cmdConfig.UserUID, cmdConfig.UserGID, cmdConfig.TargetPathURL,
 		cmdConfig.DockerExtraParams, cmdConfig.PublishData.WkhtmltopdfParams, publishURL.URL, publishURL.File)
 	if _, err := task.ExecSystemCommand(dockerRunCmdCmd); err != nil {
 		return fmt.Errorf("generating PDF file: %s", err)

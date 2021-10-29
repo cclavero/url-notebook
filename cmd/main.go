@@ -43,34 +43,15 @@ func main() {
 		panic(fmt.Sprintf("Error: Initializing target path: %s\n", err))
 	}
 
+	// Publish all URLs
+	fmt.Println("Publish all URLs:")
+	for index, pub := range cmdConfig.PublishData.URLList {
+		if err := pdf.PublishURLAsPDF(cmdConfig, index+1, pub); err != nil {
+			panic(fmt.Sprintf("Error: Publishing URL as PDF: %s\n", err))
+		}
+	}
+
 	/*
-		// Check target path
-		fmt.Printf("Check target path: %s\n", cmdConfig.TargetPath)
-		if _, err := os.Stat(cmdConfig.TargetPath); os.IsNotExist(err) {
-			if err := os.MkdirAll(cmdConfig.TargetPath, os.ModePerm); err != nil {
-				panic(fmt.Sprintf("Error: Creating the target path: %s", err))
-			}
-		}
-
-		// Execute clean task
-
-		// TODO: SUBDIRECTORI
-		fmt.Println("Execute clean task ...")
-		if err := task.ExecCleanTask(cmdConfig); err != nil {
-			panic(fmt.Sprintf("Error: Removing old PDF files: %s\n", err))
-		}
-	*/
-
-	// TODO: SUBDIRECTORI
-	/*
-		// Publish all URLs
-		fmt.Println("Publish all URLs:")
-		for index, pub := range cmdConfig.PublishData.URLList {
-			if err := pdf.PublishURLAsPDF(cmdConfig, index+1, pub); err != nil {
-				panic(fmt.Sprintf("Error: Publishing URL as PDF: %s\n", err))
-			}
-		}
-
 		// Merge all PDF files
 		fmt.Println("Merge all PDF files ...")
 		if err := pdf.MergePDFFiles(cmdConfig); err != nil {
