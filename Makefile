@@ -1,6 +1,9 @@
 
 # Env & Vars --------------------------------------------------------
 
+include .env
+export $(shell sed 's/=.*//' .env)
+
 # Tasks -------------------------------------------------------------
 
 ## # Help task --------------------------------------------------
@@ -16,26 +19,27 @@ help: Makefile
 ## # Global tasks -----------------------------------------------
 ##
 
-## clean			Clean the docker image
+## clean			Clean the 'wkhtmltopdf' docker image
 clean:
 	@echo "\n> Clean";
 	docker rmi wkhtmltopdf:notes-inxes || true;
 
-## build			Build the url-notebook cammand
+## build			Build the url-notebook command
 .PHONY: build
 build:
 	@echo "\n> Build";
-	go build -o ./build/url-notebook ./cmd/main.go;
+	go build -ldflags="-X 'main.Version=$(VERSION)'" -o ./build/url-notebook ./cmd/main.go;
 
-## run			Run the url-notebook command
-# TEMPORAL: dockerExtraParams="--network ni-net";
-run:
-	@echo "\n> Run";
-	go run ./cmd/main.go urlNotebookFile=./pdf/url-notebook-test-1.yaml targetPath=./pdf/test-1 dockerExtraParams="";
+## run-test		Run the url-notebook command for test
+run-test:
+	@echo "\n> Run Test";
+	go run -ldflags="-X 'main.Version=$(VERSION)'" ./cmd/main.go publishFile=./test/url-notebook-test.yaml targetPath=./test/pdf;
 
+
+# TEMPORAL
 ## install		Install the url-notebook command
 install: build
 	@echo "\n> Install";
 	sudo cp ./build/url-notebook /usr/local/bin;
 	ls -lah /usr/local/bin/url-notebook;
-	url-notebook -v;
+#	#url-notebook -v;

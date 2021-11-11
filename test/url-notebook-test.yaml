@@ -1,6 +1,6 @@
 publish:
   # Name of the final PDF file
-  file: test-1.pdf
+  file: test.pdf
   # List of URLs to process
   urls: 
     - url: https://gohugo.io/content-management/organization/
@@ -9,5 +9,7 @@ publish:
       file: note-2.pdf
     - url: https://gohugo.io/content-management/formats/
       file: note-3.pdf
+  # Parameters for the docker execution
+  dockerParams: 
   # Parameters for the wkhtmltopdf utility    
   wkhtmltopdfParams: --print-media-type --margin-top 20mm --margin-bottom 20mm 

@@ -51,12 +51,10 @@ func BuildWkhtmltopdfDocker() error {
 }
 
 func PublishURLAsPDF(cmdConfig *config.CmdConfig, index int, publishURL config.PublishURL) error {
-
-	// TEMPORAL
 	targetFile := filepath.Join(cmdConfig.TargetPathURL, publishURL.File)
 	fmt.Printf("[%d] Publishing %s to %s ...\n", index, publishURL.URL, targetFile)
 	dockerRunCmdCmd := fmt.Sprintf(dockerRunCmd, cmdConfig.UserUID, cmdConfig.UserGID, cmdConfig.TargetPathURL,
-		cmdConfig.DockerExtraParams, cmdConfig.PublishData.WkhtmltopdfParams, publishURL.URL, publishURL.File)
+		cmdConfig.PublishData.DockerParams, cmdConfig.PublishData.WkhtmltopdfParams, publishURL.URL, publishURL.File)
 	if _, err := task.ExecSystemCommand(dockerRunCmdCmd); err != nil {
 		return fmt.Errorf("generating PDF file: %s", err)
 	}
@@ -66,9 +64,8 @@ func PublishURLAsPDF(cmdConfig *config.CmdConfig, index int, publishURL config.P
 func MergePDFFiles(cmdConfig *config.CmdConfig) error {
 	inFiles := []string{}
 	for _, pub := range cmdConfig.PublishData.URLList {
-		inFiles = append(inFiles, filepath.Join(cmdConfig.TargetPath, pub.File))
+		inFiles = append(inFiles, filepath.Join(cmdConfig.TargetPathURL, pub.File))
 	}
-	fmt.Printf("- PDF files to merge: %+v\n", inFiles)
 	outPublishFile := filepath.Join(cmdConfig.TargetPath, cmdConfig.PublishData.File)
 	if err := pdfcpu.MergeCreateFile(inFiles, outPublishFile, nil); err != nil {
 		return fmt.Errorf("merging PDF files: %s", err)

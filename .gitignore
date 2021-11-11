@@ -2,8 +2,8 @@
 build/*
 !build/.gitkeep
 
-# pdf
-pdf/*/*.pdf
+# test
+test/pdf
 
 # Mac
 .DS_Store

@@ -10,14 +10,14 @@ import (
 )
 
 var (
-	version = "devel"
+	Version = "devel"
 )
 
 func main() {
 	var cmdConfig *config.CmdConfig
 
 	// Info
-	fmt.Println(fmt.Sprintf("\n> URLNotebook: v%s", version))
+	fmt.Println(fmt.Sprintf("\n> URLNotebook: v%s", Version))
 
 	// Get config
 	var err error
@@ -51,13 +51,11 @@ func main() {
 		}
 	}
 
-	/*
-		// Merge all PDF files
-		fmt.Println("Merge all PDF files ...")
-		if err := pdf.MergePDFFiles(cmdConfig); err != nil {
-			panic(fmt.Sprintf("Error: Merging all PDF files: %s\n", err))
-		}
-	*/
+	// Merge all PDF files
+	fmt.Println("Merge all PDF files ...")
+	if err := pdf.MergePDFFiles(cmdConfig); err != nil {
+		panic(fmt.Sprintf("Error: Merging all PDF files: %s\n", err))
+	}
 
 	// End
 	fmt.Printf("\nDone, full PDF file generated at: %s\n\n", targetFile)

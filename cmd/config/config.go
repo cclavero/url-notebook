@@ -22,16 +22,16 @@ type PublishURL struct {
 type PublishData struct {
 	File              string       `yaml:"file"`
 	URLList           []PublishURL `mapstructure:"urls"`
+	DockerParams      string       `yaml:"dockerParams"`
 	WkhtmltopdfParams string       `yaml:"wkhtmltopdfParams"`
 }
 
 type CmdConfig struct {
-	UserUID           string
-	UserGID           string
-	TargetPath        string
-	TargetPathURL     string
-	DockerExtraParams string
-	PublishData       *PublishData
+	UserUID       string
+	UserGID       string
+	TargetPath    string
+	TargetPathURL string
+	PublishData   *PublishData
 }
 
 func GetCmdConfig() (*CmdConfig, error) {
@@ -50,34 +50,33 @@ func GetCmdConfig() (*CmdConfig, error) {
 		return nil, fmt.Errorf("bad value for 'targetPath': '%s'; %s", targetPath, err)
 	}
 
-	urlNotebookFile, err := filepath.Abs(params["urlNotebookFile"])
+	publishFile, err := filepath.Abs(params["publishFile"])
 	if err != nil {
-		return nil, fmt.Errorf("bad value for 'urlNotebookFile': '%s'; %s", urlNotebookFile, err)
+		return nil, fmt.Errorf("bad value for 'publishFile': '%s'; %s", publishFile, err)
 	}
 
 	cmdConfig := &CmdConfig{
-		UserUID:           strconv.Itoa(os.Getuid()),
-		UserGID:           strconv.Itoa(os.Getgid()),
-		TargetPath:        targetPath,
-		TargetPathURL:     filepath.Join(targetPath, urlFolder),
-		DockerExtraParams: params["dockerExtraParams"],
+		UserUID:       strconv.Itoa(os.Getuid()),
+		UserGID:       strconv.Itoa(os.Getgid()),
+		TargetPath:    targetPath,
+		TargetPathURL: filepath.Join(targetPath, urlFolder),
 	}
 
-	if cmdConfig.TargetPath == "" || urlNotebookFile == "" {
-		return nil, fmt.Errorf("missing arguments: targetPath, urlNotebookFile")
+	if cmdConfig.TargetPath == "" || publishFile == "" {
+		return nil, fmt.Errorf("missing arguments: targetPath, publishFile")
 	}
 
-	cmdConfig.PublishData, err = getPublishData(urlNotebookFile)
+	cmdConfig.PublishData, err = getPublishData(publishFile)
 	if err != nil {
-		return nil, fmt.Errorf("error getting publish data: '%s'; %s", urlNotebookFile, err)
+		return nil, fmt.Errorf("error getting publish data: '%s'; %s", publishFile, err)
 	}
 
 	return cmdConfig, nil
 }
 
-func getPublishData(urlNotebookFile string) (*PublishData, error) {
-	viper.AddConfigPath(filepath.Dir(urlNotebookFile))
-	viper.SetConfigName(filepath.Base(urlNotebookFile))
+func getPublishData(publishFile string) (*PublishData, error) {
+	viper.AddConfigPath(filepath.Dir(publishFile))
+	viper.SetConfigName(filepath.Base(publishFile))
 	viper.SetConfigType("yaml")
 	if err := viper.ReadInConfig(); err != nil {
 		return nil, fmt.Errorf("fatal error in config file: %s", err)
@@ -96,7 +95,6 @@ func getPublishData(urlNotebookFile string) (*PublishData, error) {
 }
 
 func GetCmdConfigInfo(cmdConfig *CmdConfig) string {
-	return fmt.Sprintf("\n- userUID: %s\n- userGID: %s\n- targetPath: %s\n- targetPathURL: %s\n- dockerExtraParams: %s\n- publishData: %+v\n",
-		cmdConfig.UserUID, cmdConfig.UserGID, cmdConfig.TargetPath, cmdConfig.TargetPathURL,
-		cmdConfig.DockerExtraParams, cmdConfig.PublishData)
+	return fmt.Sprintf("\n- userUID: %s\n- userGID: %s\n- targetPath: %s\n- targetPathURL: %s\n- publishData: %+v\n",
+		cmdConfig.UserUID, cmdConfig.UserGID, cmdConfig.TargetPath, cmdConfig.TargetPathURL, cmdConfig.PublishData)
 }

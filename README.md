@@ -148,3 +148,9 @@ $ make stop
 $ make clean
 $ make build
 $ make run
+
+
+
+--- TEMPORAL
+
+$ url-notebook publishFile=./test/url-notebook-test.yaml targetPath=./test/pdf/
