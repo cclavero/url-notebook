@@ -7,11 +7,15 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
 const (
-	urlFolder = "url"
+	WSPDFpublishCmd = "ws-pdf-publish"
+	PublishFileFlag = "publishFile"
+	TargetPathFlag  = "targetPath"
+	urlFolder       = "url"
 )
 
 type PublishURL struct {
@@ -34,7 +38,15 @@ type CmdConfig struct {
 	PublishData   *PublishData
 }
 
-func GetCmdConfig() (*CmdConfig, error) {
+func GetCmdConfig(cmd *cobra.Command) (*CmdConfig, error) {
+
+	// TEMPORAL
+	val, _ := cmd.Flags().GetString(PublishFileFlag)
+	fmt.Printf("------------>%+v\n\n", val)
+
+	val, _ = cmd.Flags().GetString(TargetPathFlag)
+	fmt.Printf("------------>%+v\n\n", val)
+
 	args := os.Args[1:]
 	params := make(map[string]string)
 	for _, param := range args {

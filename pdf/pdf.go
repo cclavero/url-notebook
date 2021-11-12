@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/cclavero/url-notebook/cmd/config"
-	"github.com/cclavero/url-notebook/cmd/task"
+	"github.com/cclavero/ws-pdf-publish/config"
+	"github.com/cclavero/ws-pdf-publish/task"
 	pdfcpu "github.com/pdfcpu/pdfcpu/pkg/api"
 )
 
@@ -25,14 +25,15 @@ ENTRYPOINT ["wkhtmltopdf"]
 CMD ["-h"]
 EOF
 `
-	dockerImage         = "wkhtmltopdf:notes-inxes"
+	dockerVersion       = "ws-pdf-publish"
+	dockerImage         = "wkhtmltopdf:" + dockerVersion
 	dockerCheckCmd      = "docker version"
 	dockerCheckImageCmd = "docker image inspect " + dockerImage
 	dockerBuildCmd      = "docker build --tag " + dockerImage + " -f - . %s"
-	dockerRunCmd        = "docker run -u %s:%s -v %s:/out %s --rm " + dockerImage + " %s %s /out/%s"
+	dockerRunCmd        = "docker run -u %s:%s -v %s:/out %s --name " + dockerVersion + " --rm " + dockerImage + " %s %s /out/%s"
 )
 
-func BuildWkhtmltopdfDocker() error {
+func BuildWkhtmltoPDFDocker() error {
 	// Check docker is installed
 	if _, err := task.ExecSystemCommand(dockerCheckCmd); err != nil {
 		return fmt.Errorf("checking docker is installed: %s", err)

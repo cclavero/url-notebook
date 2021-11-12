@@ -6,7 +6,7 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/cclavero/url-notebook/cmd/config"
+	"github.com/cclavero/ws-pdf-publish/config"
 )
 
 func InitTargetPath(cmdConfig *config.CmdConfig) error {
