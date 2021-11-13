@@ -1,9 +1,11 @@
-# url-notebook
-
---- TODO:REVISAR
+# ws-pdf-publish
 
 @author Carles Clavero i Matas - carles.clavero@gmail.com
-@date 20/10/2021
+@date 13/11/2021
+
+
+
+--- TEMPORAL: REVISAR
 
 Diari personal utilitzant Hugo per les Notes d'inxes
 
@@ -18,6 +20,9 @@ Diari personal utilitzant Hugo per les Notes d'inxes
 - https://hugo-book-demo.netlify.app/docs/shortcodes/columns/
 - https://www.markdownguide.org/basic-syntax
 - https://gohugo.io/content-management/shortcodes/
+
+- https://github.com/onsi/ginkgo
+
 
 ## Prerequisits
 
@@ -145,12 +150,23 @@ $ make stop
 
 --- TEMPORAL
 
+$ make == make help
+
 $ make clean
+
+$ make ci
+$ make test
+$ make lint
 $ make build
-$ make run
 
-
+$ make install
 
 --- TEMPORAL
 
-$ ./build/ws-pdf-publish --publishFile ./test/url-notebook-test.yaml --targetPath ./test/pdf/
+$ PATH=${PATH}:~/go/bin GOPATH=~/go ginkgo bootstrap
+$ PATH=${PATH}:~/go/bin GOPATH=~/go ginkgo generate
+
+
+# TEST
+#@go run -ldflags="-X 'github.com/cclavero/ws-pdf-publish/cmd.Version=$(VERSION)'" ./main.go \
+#		--publishFile ./test/ws-pub-pdf-test.yaml --targetPath ./test/pdf;

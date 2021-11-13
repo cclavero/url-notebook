@@ -9,9 +9,16 @@ import (
 	"github.com/cclavero/ws-pdf-publish/config"
 )
 
-func InitTargetPath(cmdConfig *config.CmdConfig) error {
-	fmt.Printf("Check target path: %s\n", cmdConfig.TargetPath)
+func execSystemCommand(cmdStr string) (string, error) {
+	cmd := exec.Command("/bin/bash", "-c", cmdStr)
+	stdout, err := cmd.CombinedOutput()
+	if err != nil {
+		return "", fmt.Errorf("system command: '%s'; %s", cmdStr, err)
+	}
+	return string(stdout), nil
+}
 
+func InitTargetPath(cmdConfig *config.CmdConfig) error {
 	// Target path
 	if _, err := os.Stat(cmdConfig.TargetPath); os.IsNotExist(err) {
 		if err := os.MkdirAll(cmdConfig.TargetPath, os.ModePerm); err != nil {
@@ -28,11 +35,11 @@ func InitTargetPath(cmdConfig *config.CmdConfig) error {
 			return err
 		}
 		if err := os.Remove(cmdConfig.TargetPathURL); err != nil {
-			return fmt.Errorf("deleting the target path URL: %s", err)
+			return fmt.Errorf("deleting the target path URL folder: %s", err)
 		}
 	}
 	if err := os.MkdirAll(cmdConfig.TargetPathURL, os.ModePerm); err != nil {
-		return fmt.Errorf("creating the target url folder: %s", err)
+		return fmt.Errorf("creating the target path URL folder: %s", err)
 	}
 
 	return nil
@@ -50,13 +57,4 @@ func removeFilesFromPath(path string, extFilter string) error {
 		}
 	}
 	return nil
-}
-
-func ExecSystemCommand(cmdStr string) (string, error) {
-	cmd := exec.Command("/bin/bash", "-c", cmdStr)
-	stdout, err := cmd.CombinedOutput()
-	if err != nil {
-		return "", fmt.Errorf("system command: '%s'; %s", cmdStr, err)
-	}
-	return string(stdout), nil
 }

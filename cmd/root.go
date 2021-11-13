@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/cclavero/ws-pdf-publish/config"
+	"github.com/cclavero/ws-pdf-publish/task"
 	"github.com/spf13/cobra"
 )
 
@@ -21,9 +22,13 @@ Internally, uses the wkhtmltopdf utility.`,
 
 func init() {
 	rootCmd.Flags().StringP(config.PublishFileFlag, "", "", "set the 'ws-pub-pdf.yaml' publish file, including absolute or relative path.")
-	rootCmd.MarkFlagRequired(config.PublishFileFlag)
+	if err := rootCmd.MarkFlagRequired(config.PublishFileFlag); err != nil {
+		exitWithError(fmt.Errorf("making flag required: %s\n", err))
+	}
 	rootCmd.Flags().StringP(config.TargetPathFlag, "", "", "set the target path for publishing partial and final PDF files.")
-	rootCmd.MarkFlagRequired(config.TargetPathFlag)
+	if err := rootCmd.MarkFlagRequired(config.TargetPathFlag); err != nil {
+		exitWithError(fmt.Errorf("making flag required: %s\n", err))
+	}
 	rootCmd.Version = Version
 }
 
@@ -44,60 +49,40 @@ func execRoot(cmd *cobra.Command, args []string) {
 
 	// Get the config
 	if cmdConfig, err = config.GetCmdConfig(cmd); err != nil {
-		exitWithError(fmt.Errorf("Error: Getting cmd config: %s\n", err))
+		exitWithError(fmt.Errorf("getting cmd config: %s\n", err))
 	}
-
-	// TEMPORAL
-	fmt.Printf("--------------------->%+v\n\n", cmdConfig)
 
 	// Info
 	fmt.Println("Starting ...")
+	fmt.Printf("Config: %s", fmt.Sprintf(config.ConfigInfoStr, cmdConfig.UserUID, cmdConfig.UserGID, cmdConfig.TargetPath,
+		cmdConfig.TargetPathURL, cmdConfig.TargetFile, cmdConfig.PublishData))
 
-	//fmt.Printf("Command config: %s", config.GetCmdConfigInfo(cmdConfig))
+	// Build 'wkhtmltopdf' docker image
+	fmt.Println("Checking 'wkhtmltopdf' docker image ...")
+	if err = task.CheckWkhtmltoPDFDocker(); err != nil {
+		exitWithError(fmt.Errorf("building wkhtmltopdf docker image: %s", err))
+	}
 
-	/*
-
-		// Build 'wkhtmltopdf' docker image
-		fmt.Println("Building 'wkhtmltopdf' docker image ...")
-		if err := pdf.BuildWkhtmltoPDFDocker(); err != nil {
-			panic(fmt.Sprintf("Error: Building wkhtmltopdf docker image: %s", err))
-		}
-
-		// Init target path
-		targetFile := filepath.Join(cmdConfig.TargetPath, cmdConfig.PublishData.File)
-	*/
-
+	// Init target path
 	fmt.Println("Init target path ...")
-
-	// TEMPORAL
-	targetFile := "final"
-
-	/*
-		if err := task.InitTargetPath(cmdConfig); err != nil {
-			panic(fmt.Sprintf("Error: Initializing target path: %s\n", err))
-		}
-	*/
+	if err = task.InitTargetPath(cmdConfig); err != nil {
+		exitWithError(fmt.Errorf("initializing target path: %s", err))
+	}
 
 	// Publish all URLs
 	fmt.Println("Publish all URLs:")
-
-	/*
-		for index, pub := range cmdConfig.PublishData.URLList {
-			if err := pdf.PublishURLAsPDF(cmdConfig, index+1, pub); err != nil {
-				panic(fmt.Sprintf("Error: Publishing URL as PDF: %s\n", err))
-			}
+	for index, pub := range cmdConfig.PublishData.URLList {
+		if err = task.PublishURLAsPDF(cmdConfig, index+1, pub); err != nil {
+			exitWithError(fmt.Errorf("publishing URL as PDF: %s", err))
 		}
-	*/
+	}
 
 	// Merge all PDF files
 	fmt.Println("Merge all PDF files ...")
-
-	/*
-		if err := pdf.MergePDFFiles(cmdConfig); err != nil {
-			panic(fmt.Sprintf("Error: Merging all PDF files: %s\n", err))
-		}
-	*/
+	if err = task.MergePDFFiles(cmdConfig); err != nil {
+		exitWithError(fmt.Errorf("merging all PDF files: %s", err))
+	}
 
 	// End
-	fmt.Printf("\nDone, full PDF file generated at: %s\n\n", targetFile)
+	fmt.Printf("\nDone, full PDF file generated at: %s\n\n", cmdConfig.TargetFile)
 }

@@ -5,7 +5,6 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
-	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -16,6 +15,8 @@ const (
 	PublishFileFlag = "publishFile"
 	TargetPathFlag  = "targetPath"
 	urlFolder       = "url"
+	ConfigInfoStr   = "\n\t- userUID: %s\n\t- userGID: %s\n\t- targetPath: %s\n\t- targetPathURL: %s\n" +
+		"\t- targetFile: %s\n\t- publishData: %+v\n"
 )
 
 type PublishURL struct {
@@ -35,36 +36,26 @@ type CmdConfig struct {
 	UserGID       string
 	TargetPath    string
 	TargetPathURL string
+	TargetFile    string
 	PublishData   *PublishData
 }
 
 func GetCmdConfig(cmd *cobra.Command) (*CmdConfig, error) {
+	var publishFileFlag, publishFile, targetPathFlag, targetPath string
+	var err error
 
-	// TEMPORAL
-	val, _ := cmd.Flags().GetString(PublishFileFlag)
-	fmt.Printf("------------>%+v\n\n", val)
-
-	val, _ = cmd.Flags().GetString(TargetPathFlag)
-	fmt.Printf("------------>%+v\n\n", val)
-
-	args := os.Args[1:]
-	params := make(map[string]string)
-	for _, param := range args {
-		paramArr := strings.Split(param, "=")
-		if len(paramArr) != 2 {
-			return nil, fmt.Errorf("bag arguments syntax: 'arg=value'")
-		}
-		params[paramArr[0]] = paramArr[1]
+	if publishFileFlag, err = getFlagValue(cmd, PublishFileFlag); err != nil {
+		return nil, err
+	}
+	if publishFile, err = filepath.Abs(publishFileFlag); err != nil {
+		return nil, fmt.Errorf("getting '%s' value: %s", PublishFileFlag, err)
 	}
 
-	targetPath, err := filepath.Abs(params["targetPath"])
-	if err != nil {
-		return nil, fmt.Errorf("bad value for 'targetPath': '%s'; %s", targetPath, err)
+	if targetPathFlag, err = getFlagValue(cmd, TargetPathFlag); err != nil {
+		return nil, err
 	}
-
-	publishFile, err := filepath.Abs(params["publishFile"])
-	if err != nil {
-		return nil, fmt.Errorf("bad value for 'publishFile': '%s'; %s", publishFile, err)
+	if targetPath, err = filepath.Abs(targetPathFlag); err != nil {
+		return nil, fmt.Errorf("getting '%s' value: %s", TargetPathFlag, err)
 	}
 
 	cmdConfig := &CmdConfig{
@@ -73,17 +64,20 @@ func GetCmdConfig(cmd *cobra.Command) (*CmdConfig, error) {
 		TargetPath:    targetPath,
 		TargetPathURL: filepath.Join(targetPath, urlFolder),
 	}
-
-	if cmdConfig.TargetPath == "" || publishFile == "" {
-		return nil, fmt.Errorf("missing arguments: targetPath, publishFile")
+	if cmdConfig.PublishData, err = getPublishData(publishFile); err != nil {
+		return nil, fmt.Errorf("getting publish data: '%s'; %s", publishFile, err)
 	}
-
-	cmdConfig.PublishData, err = getPublishData(publishFile)
-	if err != nil {
-		return nil, fmt.Errorf("error getting publish data: '%s'; %s", publishFile, err)
-	}
+	cmdConfig.TargetFile = filepath.Join(targetPath, cmdConfig.PublishData.File)
 
 	return cmdConfig, nil
+}
+
+func getFlagValue(cmd *cobra.Command, flagID string) (string, error) {
+	flagValue, err := cmd.Flags().GetString(flagID)
+	if err != nil {
+		return "", fmt.Errorf("Error getting '%s' flag value: %s", flagID, err)
+	}
+	return flagValue, nil
 }
 
 func getPublishData(publishFile string) (*PublishData, error) {
@@ -104,9 +98,4 @@ func getPublishData(publishFile string) (*PublishData, error) {
 	}
 
 	return publishData, nil
-}
-
-func GetCmdConfigInfo(cmdConfig *CmdConfig) string {
-	return fmt.Sprintf("\n- userUID: %s\n- userGID: %s\n- targetPath: %s\n- targetPathURL: %s\n- publishData: %+v\n",
-		cmdConfig.UserUID, cmdConfig.UserGID, cmdConfig.TargetPath, cmdConfig.TargetPathURL, cmdConfig.PublishData)
 }
