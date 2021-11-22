@@ -167,6 +167,12 @@ $ PATH=${PATH}:~/go/bin GOPATH=~/go ginkgo bootstrap
 $ PATH=${PATH}:~/go/bin GOPATH=~/go ginkgo generate
 
 
-# TEST
-#@go run -ldflags="-X 'github.com/cclavero/ws-pdf-publish/cmd.Version=$(VERSION)'" ./main.go \
-#		--publishFile ./test/ws-pub-pdf-test.yaml --targetPath ./test/pdf;
+--- TEMPORAL
+
+$ go run -ldflags="-X 'github.com/cclavero/ws-pdf-publish/cmd.Version=$(VERSION)'" ./main.go \
+		--publishFile ./test/ws-pub-pdf-test.yaml --targetPath ./test/pdf
+
+--- TEMPORAL
+
+$ PATH=${PATH}:~/go/bin GOPATH=~/go ginkgo -v -r -failFast -race -p=1 --flakeAttempts=4 -a
+# -a --reportFile=test.xml

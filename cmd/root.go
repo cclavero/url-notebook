@@ -11,14 +11,27 @@ import (
 
 var (
 	Version = "devel"
-	rootCmd = &cobra.Command{
+	/*
+			rootCmd = &cobra.Command{
+				Use:   config.WSPDFpublishCmd,
+				Short: "WebSite PDF Publish simple command line tool to publish HTML pages to PDF.",
+				Long: `WebSite PDF Publish is a simple command line tool to publish some set of pages from a WebSite to PDF, using a 'ws-pub-pdf.yaml' configuration file.
+		Internally, uses the wkhtmltopdf utility.`,
+				Run: execRoot,
+			}
+	*/
+	rootCmd = NewRootCmd()
+)
+
+func NewRootCmd() *cobra.Command {
+	return &cobra.Command{
 		Use:   config.WSPDFpublishCmd,
 		Short: "WebSite PDF Publish simple command line tool to publish HTML pages to PDF.",
 		Long: `WebSite PDF Publish is a simple command line tool to publish some set of pages from a WebSite to PDF, using a 'ws-pub-pdf.yaml' configuration file.
 Internally, uses the wkhtmltopdf utility.`,
 		Run: execRoot,
 	}
-)
+}
 
 func init() {
 	rootCmd.Flags().StringP(config.PublishFileFlag, "", "", "set the 'ws-pub-pdf.yaml' publish file, including absolute or relative path.")

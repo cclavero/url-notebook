@@ -11,3 +11,9 @@ func TestCmd(t *testing.T) {
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "Cmd Suite")
 }
+
+var _ = BeforeSuite(func() {
+})
+
+var _ = AfterSuite(func() {
+})

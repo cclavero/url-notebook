@@ -25,7 +25,7 @@ help: Makefile
 ## clean		Clean the 'wkhtmltopdf' docker image
 clean:
 	@echo "\n> Clean";
-	@rm -rf $(build_report_path)/tests.* $(build_report_path)/coverage.* $(build_bin_path)/ws-pdf-publish;
+	#@rm -rf $(build_report_path)/tests.* $(build_report_path)/coverage.* $(build_bin_path)/ws-pdf-publish;
 	@docker rmi wkhtmltopdf:ws-pdf-publish || true;
 
 ## test		Run the tests
