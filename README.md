@@ -169,8 +169,7 @@ $ PATH=${PATH}:~/go/bin GOPATH=~/go ginkgo generate
 
 --- TEMPORAL
 
-$ go run -ldflags="-X 'github.com/cclavero/ws-pdf-publish/cmd.Version=$(VERSION)'" ./main.go \
-		--publishFile ./test/ws-pub-pdf-test.yaml --targetPath ./test/pdf
+$ go run -ldflags="-X 'github.com/cclavero/ws-pdf-publish/cmd.Version=1.0-alpha'" ./main.go --publishFile ./build/test/ws-pub-pdf-test.yaml --targetPath ./build/test/out
 
 --- TEMPORAL
 

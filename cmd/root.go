@@ -11,29 +11,17 @@ import (
 
 var (
 	Version = "devel"
-	/*
-			rootCmd = &cobra.Command{
-				Use:   config.WSPDFpublishCmd,
-				Short: "WebSite PDF Publish simple command line tool to publish HTML pages to PDF.",
-				Long: `WebSite PDF Publish is a simple command line tool to publish some set of pages from a WebSite to PDF, using a 'ws-pub-pdf.yaml' configuration file.
-		Internally, uses the wkhtmltopdf utility.`,
-				Run: execRoot,
-			}
-	*/
-	rootCmd = NewRootCmd()
 )
 
 func NewRootCmd() *cobra.Command {
-	return &cobra.Command{
+	rootCmd := &cobra.Command{
 		Use:   config.WSPDFpublishCmd,
 		Short: "WebSite PDF Publish simple command line tool to publish HTML pages to PDF.",
 		Long: `WebSite PDF Publish is a simple command line tool to publish some set of pages from a WebSite to PDF, using a 'ws-pub-pdf.yaml' configuration file.
 Internally, uses the wkhtmltopdf utility.`,
 		Run: execRoot,
 	}
-}
 
-func init() {
 	rootCmd.Flags().StringP(config.PublishFileFlag, "", "", "set the 'ws-pub-pdf.yaml' publish file, including absolute or relative path.")
 	if err := rootCmd.MarkFlagRequired(config.PublishFileFlag); err != nil {
 		exitWithError(fmt.Errorf("making flag required: %s\n", err))
@@ -43,12 +31,8 @@ func init() {
 		exitWithError(fmt.Errorf("making flag required: %s\n", err))
 	}
 	rootCmd.Version = Version
-}
 
-func Execute() {
-	if err := rootCmd.Execute(); err != nil {
-		exitWithError(err)
-	}
+	return rootCmd
 }
 
 func exitWithError(err error) {
