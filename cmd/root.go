@@ -11,10 +11,10 @@ import (
 
 var (
 	Version = "devel"
-	runtime RuntimeInt
+	runtime config.RuntimeInt
 )
 
-func NewRootCmd(runtimeIn RuntimeInt) *cobra.Command {
+func NewRootCmd(runtimeIn config.RuntimeInt) *cobra.Command {
 	runtime = runtimeIn
 
 	rootCmd := &cobra.Command{
@@ -50,7 +50,10 @@ func execRoot(cmd *cobra.Command, args []string) {
 	// Get the config
 	if cmdConfig, err = config.GetCmdConfig(cmd); err != nil {
 		runtime.SetError(fmt.Errorf("getting cmd config: %s", err))
+
+		// TEMPORAL
 		runtime.Exit()
+		//return
 	}
 
 	// Info

@@ -1,8 +1,6 @@
 package cmd_test
 
 import (
-	"fmt"
-
 	"github.com/cclavero/ws-pdf-publish/cmd"
 	"github.com/cclavero/ws-pdf-publish/test"
 	. "github.com/onsi/ginkgo"
@@ -14,11 +12,11 @@ var _ = Describe("Cmd", func() {
 	Context("Execute command", func() {
 
 		var (
-			testRuntime *test.TestRuntime
+			testRun *test.TestRuntime
 		)
 
 		BeforeEach(func() { // Before each 'It' block
-			testRuntime = test.NewTestRuntime()
+			testRun = test.NewTestRuntime()
 		})
 
 		AfterEach(func() { // After each 'It' block
@@ -28,29 +26,14 @@ var _ = Describe("Cmd", func() {
 
 			It("should work with '-h' parameter and show the help result", func() {
 
-				cmd := cmd.NewRootCmd(testRuntime)
-				cmd.SetArgs([]string{"-h"})
-				//outCap := test.NewOutCapture()
-				testRuntime.StartOutCapture()
-				cmd.Execute()
-				result, errResult := testRuntime.CloseOutCapture()
+				rootCmd := cmd.NewRootCmd(testRun)
+				rootCmd.SetArgs([]string{"-h"})
+				testRun.OpenOutCapture()
+				rootCmd.Execute()
+				result, errResult := testRun.CloseOutCapture(true, 360)
 
-				test.LogResult(result, 300)
-				test.LogError(errResult)
-
-				/*
-					os.Args = []string{test.TestCmdName, "-h"}
-
-					outCap := test.NewOutCapture()
-					cmd.Execute()
-					result, errResult := outCap.Close()
-
-					test.LogResult(result, 300)
-					test.LogError(errResult)
-				*/
-
-				Expect(errResult).To(Equal(""))
 				Expect(result).To(Not(Equal("")))
+				Expect(errResult).To(Equal(""))
 
 				Expect(result).Should(HavePrefix("WebSite PDF Publish is a simple command line tool"))
 				Expect(result).Should(ContainSubstring("Usage:\n"))
@@ -60,74 +43,93 @@ var _ = Describe("Cmd", func() {
 
 			It("should work with '-v' parameter and show version", func() {
 
-				fmt.Printf("----------------->%+v\n\n", testRuntime)
+				rootCmd := cmd.NewRootCmd(testRun)
+				rootCmd.SetArgs([]string{"-v"})
+				testRun.OpenOutCapture()
+				rootCmd.Execute()
+				result, errResult := testRun.CloseOutCapture(true, 200)
 
-				/*
-					os.Args = []string{test.TestCmdName, "-v"}
+				Expect(result).To(Not(Equal("")))
+				Expect(errResult).To(Equal(""))
 
-					outCap := test.NewOutCapture()
-					cmd.Execute()
-					result, errResult := outCap.Close()
-
-					test.LogResult(result, 200)
-					test.LogError(errResult)
-
-					Expect(errResult).To(Equal(""))
-					Expect(result).To(Not(Equal("")))
-
-					Expect(result).Should(HavePrefix("mc3words version devel"))
-				*/
+				Expect(result).Should(HavePrefix("ws-pdf-publish version devel"))
 
 			})
 
+			It("should fail because setting bad flag", func() {
+
+				rootCmd := cmd.NewRootCmd(testRun)
+				rootCmd.SetArgs([]string{"--bad-flag"})
+				testRun.OpenOutCapture()
+				rootCmd.Execute()
+				result, errResult := testRun.CloseOutCapture(true, 100)
+
+				Expect(result).To(Equal(""))
+				Expect(errResult).To(Not(Equal("")))
+
+				Expect(errResult).Should(HavePrefix("Error: unknown flag: --bad-flag"))
+				Expect(errResult).Should(ContainSubstring("Usage:\n"))
+
+			})
+
+			It("should fail because missing required flags", func() {
+
+				rootCmd := cmd.NewRootCmd(testRun)
+				rootCmd.SetArgs([]string{})
+				testRun.OpenOutCapture()
+				rootCmd.Execute()
+				result, errResult := testRun.CloseOutCapture(true, 100)
+
+				Expect(result).To(Equal(""))
+				Expect(errResult).To(Not(Equal("")))
+
+				Expect(errResult).Should(HavePrefix(`Error: required flag(s) "publishFile", "targetPath" not set`))
+				Expect(errResult).Should(ContainSubstring("Usage:\n"))
+
+			})
+
+			// TEMPORAL
 			/*
-				It("should work with 'test-short.txt' file", func() {
+				It("should fail with invalid flags", func() {
 
-					os.Args = []string{test.TestCmdName, test.TestBasePath + "/resource/test-short.txt"}
+					rootCmd := cmd.NewRootCmd(testRun)
+					rootCmd.SetArgs([]string{"--publishFile", test.TestBasePath + "/not-valid-ws-pub-pdf.yaml",
+						"--targetPath", test.TestBasePath + "/out"})
+					testRun.OpenOutCapture()
+					rootCmd.Execute()
+					result, errResult := testRun.CloseOutCapture(true, 500)
 
-					outCap := test.NewOutCapture()
-					cmd.Execute()
-					result, errResult := outCap.Close()
+					//Expect(result).To(Equal(""))
+					//Expect(errResult).To(Not(Equal("")))
 
-					test.LogResult(result, 500)
-					test.LogError(errResult)
-
-					Expect(result).To(Not(Equal("")))
-					Expect(errResult).To(Equal(""))
-
-					Expect(result).Should(HavePrefix("Starting ..."))
-					Expect(result).Should(ContainSubstring("test-short.txt"))
-					Expect(result).Should(ContainSubstring("Processing words for input file #1: 412 words"))
-					Expect(result).Should(ContainSubstring("Found partial results #1: 401 sequences found"))
-					Expect(result).Should(ContainSubstring("1    i'm your father                          5"))
-					Expect(result).Should(ContainSubstring("2    father i'm your                          4"))
-					Expect(result).Should(ContainSubstring("3    your father i'm                          3"))
+					// TEMPORAL
+					fmt.Printf("--------------------------->%+v,%+v\n\n", result, errResult)
 
 				})
+			*/
 
-				It("should work with 2 files", func() {
+			It("should work with valid flags", func() {
 
-					os.Args = []string{test.TestCmdName, test.TestBasePath + "/resource/test-short.txt",
-						test.TestBasePath + "/resource/test-short.txt"}
+				rootCmd := cmd.NewRootCmd(testRun)
+				rootCmd.SetArgs([]string{"--publishFile", test.TestBasePath + "/ws-pub-pdf-test.yaml",
+					"--targetPath", test.TestBasePath + "/out"})
+				testRun.OpenOutCapture()
+				rootCmd.Execute()
+				result, errResult := testRun.CloseOutCapture(true, 500)
 
-					outCap := test.NewOutCapture()
-					cmd.Execute()
-					result, errResult := outCap.Close()
+				Expect(result).To(Not(Equal("")))
+				Expect(errResult).To(Equal(""))
 
-					test.LogResult(result, 700)
-					test.LogError(errResult)
+				Expect(result).Should(HavePrefix("Starting"))
+				Expect(result).Should(ContainSubstring("Config:"))
+				Expect(result).Should(ContainSubstring("/test.pdf"))
 
-					Expect(result).To(Not(Equal("")))
-					Expect(errResult).To(Equal(""))
+				Expect(test.TestBasePath + "/out").Should(BeADirectory())
+				Expect(test.TestBasePath + "/out/test.pdf").Should(BeARegularFile())
+				Expect(test.TestBasePath + "/out/url").Should(BeADirectory())
+				Expect(test.TestBasePath + "/out/url/boe.pdf").Should(BeARegularFile())
 
-					Expect(result).Should(HavePrefix("Starting ..."))
-					Expect(result).Should(ContainSubstring("test-short.txt"))
-					Expect(result).Should(ContainSubstring("Processing words for input file #2: 412 words"))
-					Expect(result).Should(ContainSubstring("Found partial results #2: 401 sequences found"))
-					Expect(result).Should(ContainSubstring("1    i'm your father                          10"))
-					Expect(result).Should(ContainSubstring("2    father i'm your                          8"))
-
-				})*/
+			})
 
 		})
 

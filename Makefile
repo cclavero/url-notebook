@@ -37,7 +37,7 @@ test:
 			gotest.tools/gotestsum github.com/t-yuki/gocover-cobertura;
 	@rm -rf $(build_report_path)/tests.* $(build_report_path)/coverage.*;
 	@$(go_env) \
-		gotestsum --junitfile $(build_report_path)/tests.xml -- \
+		gotestsum --format standard-verbose --junitfile $(build_report_path)/tests.xml -- \
 		-failfast -count=1 -p 1 -coverprofile=$(build_report_path)/coverage.out ./...;
 	@$(go_env) \
 		go tool cover -html=$(build_report_path)/coverage.out -o $(build_report_path)/coverage.html && \
