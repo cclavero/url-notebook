@@ -1,18 +1,24 @@
 package cmd_test
 
 import (
-	. "github.com/onsi/ginkgo"
-	//. "github.com/onsi/gomega"
-)
+	"fmt"
 
-// TEMPORAL
-// https://gianarb.it/blog/golang-mockmania-cli-command-with-cobra
+	"github.com/cclavero/ws-pdf-publish/cmd"
+	"github.com/cclavero/ws-pdf-publish/test"
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
+)
 
 var _ = Describe("Cmd", func() {
 
 	Context("Execute command", func() {
 
+		var (
+			testRuntime *test.TestRuntime
+		)
+
 		BeforeEach(func() { // Before each 'It' block
+			testRuntime = test.NewTestRuntime()
 		})
 
 		AfterEach(func() { // After each 'It' block
@@ -21,6 +27,16 @@ var _ = Describe("Cmd", func() {
 		When("trying to invoke the command", func() {
 
 			It("should work with '-h' parameter and show the help result", func() {
+
+				cmd := cmd.NewRootCmd(testRuntime)
+				cmd.SetArgs([]string{"-h"})
+				//outCap := test.NewOutCapture()
+				testRuntime.StartOutCapture()
+				cmd.Execute()
+				result, errResult := testRuntime.CloseOutCapture()
+
+				test.LogResult(result, 300)
+				test.LogError(errResult)
 
 				/*
 					os.Args = []string{test.TestCmdName, "-h"}
@@ -31,18 +47,20 @@ var _ = Describe("Cmd", func() {
 
 					test.LogResult(result, 300)
 					test.LogError(errResult)
-
-					Expect(errResult).To(Equal(""))
-					Expect(result).To(Not(Equal("")))
-
-					Expect(result).Should(HavePrefix("WebSite PDF Publish is a simple command line tool"))
-					Expect(result).Should(ContainSubstring("Usage:\n"))
-					Expect(result).Should(ContainSubstring("Flags:\n"))
 				*/
+
+				Expect(errResult).To(Equal(""))
+				Expect(result).To(Not(Equal("")))
+
+				Expect(result).Should(HavePrefix("WebSite PDF Publish is a simple command line tool"))
+				Expect(result).Should(ContainSubstring("Usage:\n"))
+				Expect(result).Should(ContainSubstring("Flags:\n"))
 
 			})
 
 			It("should work with '-v' parameter and show version", func() {
+
+				fmt.Printf("----------------->%+v\n\n", testRuntime)
 
 				/*
 					os.Args = []string{test.TestCmdName, "-v"}

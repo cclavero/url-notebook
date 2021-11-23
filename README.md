@@ -173,5 +173,7 @@ $ go run -ldflags="-X 'github.com/cclavero/ws-pdf-publish/cmd.Version=1.0-alpha'
 
 --- TEMPORAL
 
+$ go test -v .
+
 $ PATH=${PATH}:~/go/bin GOPATH=~/go ginkgo -v -r -failFast -race -p=1 --flakeAttempts=4 -a
 # -a --reportFile=test.xml
