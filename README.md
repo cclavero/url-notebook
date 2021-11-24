@@ -173,5 +173,5 @@ $ go run -ldflags="-X 'github.com/cclavero/ws-pdf-publish/cmd.Version=1.0-alpha'
 
 --- TEMPORAL
 
-$ go test -v -failfast -count=1 -p 1 .
+$ go test -v -failfast -count=1 .
 

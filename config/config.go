@@ -75,7 +75,7 @@ func GetCmdConfig(cmd *cobra.Command) (*CmdConfig, error) {
 func getFlagValue(cmd *cobra.Command, flagID string) (string, error) {
 	flagValue, err := cmd.Flags().GetString(flagID)
 	if err != nil {
-		return "", fmt.Errorf("Error getting '%s' flag value: %s", flagID, err)
+		return "", fmt.Errorf("getting '%s' flag value: %s", flagID, err)
 	}
 	return flagValue, nil
 }

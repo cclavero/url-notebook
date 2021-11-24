@@ -9,16 +9,7 @@ import (
 	"github.com/onsi/ginkgo"
 )
 
-const (
-	TestCmdName  = "ws-pdf-publish"
-	TestBasePath = "../build/test"
-)
-
-type TestRuntime struct {
-	// Exit
-	err        error
-	exitStatus int
-	// Out capture
+type TestCtx struct {
 	stdout    *os.File
 	stderr    *os.File
 	outReader *os.File
@@ -27,76 +18,57 @@ type TestRuntime struct {
 	errWriter *os.File
 }
 
-func NewTestRuntime() *TestRuntime {
-	return &TestRuntime{
-		exitStatus: 0,
-	}
-}
-func (testRun *TestRuntime) SetError(err error) {
-	testRun.err = err
-	testRun.exitStatus = 1
+func NewTestCtx() *TestCtx {
+	return &TestCtx{}
 }
 
-func (testRun *TestRuntime) Exit() {
-	if testRun.err != nil { // Has error
-		fmt.Fprintf(os.Stderr, "Error: %s\n", testRun.err.Error())
-	}
-	if testRun.exitStatus != 0 {
-		fmt.Printf("exit status %d", testRun.exitStatus)
-
-		// TEMPORAL
-		//ginkgo.Fail("hola")
-
-	}
-}
-
-func (testRun *TestRuntime) OpenOutCapture() {
+func (testCtx *TestCtx) OpenOutCapture() {
 	var err error
 
-	testRun.stdout = os.Stdout
-	testRun.stderr = os.Stderr
+	testCtx.stdout = os.Stdout
+	testCtx.stderr = os.Stderr
 
-	if testRun.outReader, testRun.outWriter, err = os.Pipe(); err != nil {
+	if testCtx.outReader, testCtx.outWriter, err = os.Pipe(); err != nil {
 		ginkgo.Fail(fmt.Sprintf("unexpected error: %s", err))
 	}
-	if testRun.errReader, testRun.errWriter, err = os.Pipe(); err != nil {
+	if testCtx.errReader, testCtx.errWriter, err = os.Pipe(); err != nil {
 		ginkgo.Fail(fmt.Sprintf("unexpected error: %s", err))
 	}
 
-	os.Stdout = testRun.outWriter
-	os.Stderr = testRun.errWriter
+	os.Stdout = testCtx.outWriter
+	os.Stderr = testCtx.errWriter
 }
 
-func (testRun *TestRuntime) CloseOutCapture(logResults bool, limit int) (result string, errResult string) {
+func (testCtx *TestCtx) CloseOutCapture(logResults bool, limit int) (result string, errResult string) {
 	var out []byte
 	var outError []byte
 	var err error
 
-	testRun.outWriter.Close()
-	if out, err = ioutil.ReadAll(testRun.outReader); err != nil {
+	testCtx.outWriter.Close()
+	if out, err = ioutil.ReadAll(testCtx.outReader); err != nil {
 		ginkgo.Fail(fmt.Sprintf("unexpected error: %s", err))
 	}
 
-	testRun.errWriter.Close()
-	if outError, err = ioutil.ReadAll(testRun.errReader); err != nil {
+	testCtx.errWriter.Close()
+	if outError, err = ioutil.ReadAll(testCtx.errReader); err != nil {
 		ginkgo.Fail(fmt.Sprintf("unexpected error: %s", err))
 	}
 
-	os.Stdout = testRun.stdout
-	os.Stderr = testRun.stderr
+	os.Stdout = testCtx.stdout
+	os.Stderr = testCtx.stderr
 
 	result = string(out)
 	errResult = string(outError)
 
 	if logResults {
-		testRun.logResult(result, limit)
-		testRun.logErrorResult(errResult)
+		testCtx.logResult(result, limit)
+		testCtx.logErrorResult(errResult)
 	}
 
 	return result, errResult
 }
 
-func (testRun *TestRuntime) logResult(message string, limit int) {
+func (testCtx *TestCtx) logResult(message string, limit int) {
 	if message == "" {
 		log.Print("Result: Empty string\n\n")
 	} else {
@@ -108,7 +80,7 @@ func (testRun *TestRuntime) logResult(message string, limit int) {
 	}
 }
 
-func (testRun *TestRuntime) logErrorResult(message string) {
+func (testCtx *TestCtx) logErrorResult(message string) {
 	if message == "" {
 		log.Print("Error: No error\n\n")
 	} else {

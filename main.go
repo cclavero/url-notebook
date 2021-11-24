@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/cclavero/ws-pdf-publish/cmd"
 	"github.com/spf13/cobra"
@@ -12,18 +13,14 @@ func main() {
 	var err error
 
 	if rootCmd, err = cmd.NewRootCmd(); err != nil {
-
-		// TEMPORAL
-		fmt.Printf("-------------------->ERROR:%s", err.Error())
-
+		exitWithError(err)
 	}
-	if err := rootCmd.Execute(); err != nil {
-
-		// TEMPORAL
-		fmt.Printf("-------------------->ERROR:%s", err.Error())
-
-		//runtime.SetError(err)
+	if err = rootCmd.Execute(); err != nil {
+		exitWithError(err)
 	}
+}
 
-	//runtime.Exit()
+func exitWithError(err error) {
+	fmt.Fprintln(os.Stderr, err)
+	os.Exit(1)
 }

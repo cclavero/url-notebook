@@ -1,24 +1,21 @@
 package cmd_test
 
 import (
-	"fmt"
-
 	"github.com/cclavero/ws-pdf-publish/cmd"
 	"github.com/cclavero/ws-pdf-publish/test"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
 
+const (
+	testBasePath = "../build/test"
+)
+
 var _ = Describe("Cmd", func() {
 
 	Context("Execute command", func() {
 
-		var (
-			testRun *test.TestRuntime
-		)
-
 		BeforeEach(func() { // Before each 'It' block
-			testRun = test.NewTestRuntime()
 		})
 
 		AfterEach(func() { // After each 'It' block
@@ -28,11 +25,17 @@ var _ = Describe("Cmd", func() {
 
 			It("should work with '-h' parameter and show the help result", func() {
 
-				rootCmd := cmd.NewRootCmd(testRun)
+				testCtx := test.NewTestCtx()
+
+				rootCmd, err := cmd.NewRootCmd()
+
+				Expect(rootCmd).To(Not(BeNil()))
+				Expect(err).To(BeNil())
+
 				rootCmd.SetArgs([]string{"-h"})
-				testRun.OpenOutCapture()
+				testCtx.OpenOutCapture()
 				rootCmd.Execute()
-				result, errResult := testRun.CloseOutCapture(true, 360)
+				result, errResult := testCtx.CloseOutCapture(true, 360)
 
 				Expect(result).To(Not(Equal("")))
 				Expect(errResult).To(Equal(""))
@@ -45,11 +48,17 @@ var _ = Describe("Cmd", func() {
 
 			It("should work with '-v' parameter and show version", func() {
 
-				rootCmd := cmd.NewRootCmd(testRun)
+				testCtx := test.NewTestCtx()
+
+				rootCmd, err := cmd.NewRootCmd()
+
+				Expect(rootCmd).To(Not(BeNil()))
+				Expect(err).To(BeNil())
+
 				rootCmd.SetArgs([]string{"-v"})
-				testRun.OpenOutCapture()
+				testCtx.OpenOutCapture()
 				rootCmd.Execute()
-				result, errResult := testRun.CloseOutCapture(true, 200)
+				result, errResult := testCtx.CloseOutCapture(true, 200)
 
 				Expect(result).To(Not(Equal("")))
 				Expect(errResult).To(Equal(""))
@@ -60,11 +69,17 @@ var _ = Describe("Cmd", func() {
 
 			It("should fail because setting bad flag", func() {
 
-				rootCmd := cmd.NewRootCmd(testRun)
+				testCtx := test.NewTestCtx()
+
+				rootCmd, err := cmd.NewRootCmd()
+
+				Expect(rootCmd).To(Not(BeNil()))
+				Expect(err).To(BeNil())
+
 				rootCmd.SetArgs([]string{"--bad-flag"})
-				testRun.OpenOutCapture()
+				testCtx.OpenOutCapture()
 				rootCmd.Execute()
-				result, errResult := testRun.CloseOutCapture(true, 100)
+				result, errResult := testCtx.CloseOutCapture(true, 100)
 
 				Expect(result).To(Equal(""))
 				Expect(errResult).To(Not(Equal("")))
@@ -76,11 +91,17 @@ var _ = Describe("Cmd", func() {
 
 			It("should fail because missing required flags", func() {
 
-				rootCmd := cmd.NewRootCmd(testRun)
+				testCtx := test.NewTestCtx()
+
+				rootCmd, err := cmd.NewRootCmd()
+
+				Expect(rootCmd).To(Not(BeNil()))
+				Expect(err).To(BeNil())
+
 				rootCmd.SetArgs([]string{})
-				testRun.OpenOutCapture()
+				testCtx.OpenOutCapture()
 				rootCmd.Execute()
-				result, errResult := testRun.CloseOutCapture(true, 100)
+				result, errResult := testCtx.CloseOutCapture(true, 100)
 
 				Expect(result).To(Equal(""))
 				Expect(errResult).To(Not(Equal("")))
@@ -92,29 +113,41 @@ var _ = Describe("Cmd", func() {
 
 			It("should fail with invalid flags", func() {
 
-				rootCmd := cmd.NewRootCmd(testRun)
-				rootCmd.SetArgs([]string{"--publishFile", test.TestBasePath + "/not-valid-ws-pub-pdf.yaml",
-					"--targetPath", test.TestBasePath + "/out"})
-				testRun.OpenOutCapture()
+				testCtx := test.NewTestCtx()
+
+				rootCmd, err := cmd.NewRootCmd()
+
+				Expect(rootCmd).To(Not(BeNil()))
+				Expect(err).To(BeNil())
+
+				rootCmd.SetArgs([]string{"--publishFile", testBasePath + "/not-valid-ws-pub-pdf.yaml",
+					"--targetPath", testBasePath + "/out"})
+				testCtx.OpenOutCapture()
 				rootCmd.Execute()
-				result, errResult := testRun.CloseOutCapture(true, 500)
+				result, errResult := testCtx.CloseOutCapture(true, 500)
 
-				//Expect(result).To(Equal(""))
-				//Expect(errResult).To(Not(Equal("")))
+				Expect(result).To(Equal(""))
+				Expect(errResult).To(Not(Equal("")))
 
-				// TEMPORAL
-				fmt.Printf("--------------------------->%+v,%+v\n\n", result, errResult)
+				Expect(errResult).Should(HavePrefix("Error: getting cmd config: getting publish data:"))
+				Expect(errResult).Should(ContainSubstring(`Config File "not-valid-ws-pub-pdf.yaml" Not Found`))
 
 			})
 
 			It("should work with valid flags", func() {
 
-				rootCmd := cmd.NewRootCmd(testRun)
-				rootCmd.SetArgs([]string{"--publishFile", test.TestBasePath + "/ws-pub-pdf-test.yaml",
-					"--targetPath", test.TestBasePath + "/out"})
-				testRun.OpenOutCapture()
+				testCtx := test.NewTestCtx()
+
+				rootCmd, err := cmd.NewRootCmd()
+
+				Expect(rootCmd).To(Not(BeNil()))
+				Expect(err).To(BeNil())
+
+				rootCmd.SetArgs([]string{"--publishFile", testBasePath + "/ws-pub-pdf-test.yaml",
+					"--targetPath", testBasePath + "/out"})
+				testCtx.OpenOutCapture()
 				rootCmd.Execute()
-				result, errResult := testRun.CloseOutCapture(true, 500)
+				result, errResult := testCtx.CloseOutCapture(true, 500)
 
 				Expect(result).To(Not(Equal("")))
 				Expect(errResult).To(Equal(""))
@@ -123,10 +156,10 @@ var _ = Describe("Cmd", func() {
 				Expect(result).Should(ContainSubstring("Config:"))
 				Expect(result).Should(ContainSubstring("/test.pdf"))
 
-				Expect(test.TestBasePath + "/out").Should(BeADirectory())
-				Expect(test.TestBasePath + "/out/test.pdf").Should(BeARegularFile())
-				Expect(test.TestBasePath + "/out/url").Should(BeADirectory())
-				Expect(test.TestBasePath + "/out/url/boe.pdf").Should(BeARegularFile())
+				Expect(testBasePath + "/out").Should(BeADirectory())
+				Expect(testBasePath + "/out/url").Should(BeADirectory())
+				Expect(testBasePath + "/out/url/boe.pdf").Should(BeARegularFile())
+				Expect(testBasePath + "/out/test.pdf").Should(BeARegularFile())
 
 			})
 
