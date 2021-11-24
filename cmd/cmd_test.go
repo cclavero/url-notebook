@@ -1,6 +1,8 @@
 package cmd_test
 
 import (
+	"fmt"
+
 	"github.com/cclavero/ws-pdf-publish/cmd"
 	"github.com/cclavero/ws-pdf-publish/test"
 	. "github.com/onsi/ginkgo"
@@ -88,25 +90,22 @@ var _ = Describe("Cmd", func() {
 
 			})
 
-			// TEMPORAL
-			/*
-				It("should fail with invalid flags", func() {
+			It("should fail with invalid flags", func() {
 
-					rootCmd := cmd.NewRootCmd(testRun)
-					rootCmd.SetArgs([]string{"--publishFile", test.TestBasePath + "/not-valid-ws-pub-pdf.yaml",
-						"--targetPath", test.TestBasePath + "/out"})
-					testRun.OpenOutCapture()
-					rootCmd.Execute()
-					result, errResult := testRun.CloseOutCapture(true, 500)
+				rootCmd := cmd.NewRootCmd(testRun)
+				rootCmd.SetArgs([]string{"--publishFile", test.TestBasePath + "/not-valid-ws-pub-pdf.yaml",
+					"--targetPath", test.TestBasePath + "/out"})
+				testRun.OpenOutCapture()
+				rootCmd.Execute()
+				result, errResult := testRun.CloseOutCapture(true, 500)
 
-					//Expect(result).To(Equal(""))
-					//Expect(errResult).To(Not(Equal("")))
+				//Expect(result).To(Equal(""))
+				//Expect(errResult).To(Not(Equal("")))
 
-					// TEMPORAL
-					fmt.Printf("--------------------------->%+v,%+v\n\n", result, errResult)
+				// TEMPORAL
+				fmt.Printf("--------------------------->%+v,%+v\n\n", result, errResult)
 
-				})
-			*/
+			})
 
 			It("should work with valid flags", func() {
 

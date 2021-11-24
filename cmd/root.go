@@ -11,36 +11,31 @@ import (
 
 var (
 	Version = "devel"
-	runtime config.RuntimeInt
 )
 
-func NewRootCmd(runtimeIn config.RuntimeInt) *cobra.Command {
-	runtime = runtimeIn
-
+func NewRootCmd() (*cobra.Command, error) {
 	rootCmd := &cobra.Command{
 		Use:   config.WSPDFpublishCmd,
 		Short: "WebSite PDF Publish simple command line tool to publish HTML pages to PDF.",
 		Long: `WebSite PDF Publish is a simple command line tool to publish some set of pages from a WebSite to PDF, using a 'ws-pub-pdf.yaml' configuration file.
 Internally, uses the wkhtmltopdf utility.`,
-		Run: execRoot,
+		RunE: execRoot,
 	}
 
 	rootCmd.Flags().StringP(config.PublishFileFlag, "", "", "set the 'ws-pub-pdf.yaml' publish file, including absolute or relative path.")
 	if err := rootCmd.MarkFlagRequired(config.PublishFileFlag); err != nil {
-		runtime.SetError(fmt.Errorf("making flag required: %s", err))
-		runtime.Exit()
+		return nil, fmt.Errorf("making flag required: %s", err)
 	}
 	rootCmd.Flags().StringP(config.TargetPathFlag, "", "", "set the target path for publishing partial and final PDF files.")
 	if err := rootCmd.MarkFlagRequired(config.TargetPathFlag); err != nil {
-		runtime.SetError(fmt.Errorf("making flag required: %s", err))
-		runtime.Exit()
+		return nil, fmt.Errorf("making flag required: %s", err)
 	}
 	rootCmd.Version = Version
 
-	return rootCmd
+	return rootCmd, nil
 }
 
-func execRoot(cmd *cobra.Command, args []string) {
+func execRoot(cmd *cobra.Command, args []string) error {
 	var cmdConfig *config.CmdConfig
 	var err error
 
@@ -49,11 +44,7 @@ func execRoot(cmd *cobra.Command, args []string) {
 
 	// Get the config
 	if cmdConfig, err = config.GetCmdConfig(cmd); err != nil {
-		runtime.SetError(fmt.Errorf("getting cmd config: %s", err))
-
-		// TEMPORAL
-		runtime.Exit()
-		//return
+		return fmt.Errorf("getting cmd config: %s", err)
 	}
 
 	// Info
@@ -64,31 +55,27 @@ func execRoot(cmd *cobra.Command, args []string) {
 	// Build 'wkhtmltopdf' docker image
 	fmt.Println("Checking 'wkhtmltopdf' docker image ...")
 	if err = task.CheckWkhtmltoPDFDocker(); err != nil {
-		runtime.SetError(fmt.Errorf("building wkhtmltopdf docker image: %s", err))
-		runtime.Exit()
+		return fmt.Errorf("building wkhtmltopdf docker image: %s", err)
 	}
 
 	// Init target path
 	fmt.Println("Init target path ...")
 	if err = task.InitTargetPath(cmdConfig); err != nil {
-		runtime.SetError(fmt.Errorf("initializing target path: %s", err))
-		runtime.Exit()
+		return fmt.Errorf("initializing target path: %s", err)
 	}
 
 	// Publish all URLs
 	fmt.Println("Publish all URLs:")
 	for index, pub := range cmdConfig.PublishData.URLList {
 		if err = task.PublishURLAsPDF(cmdConfig, index+1, pub); err != nil {
-			runtime.SetError(fmt.Errorf("publishing URL as PDF: %s", err))
-			runtime.Exit()
+			return fmt.Errorf("publishing URL as PDF: %s", err)
 		}
 	}
 
 	// Merge all PDF files
 	fmt.Println("Merge all PDF files ...")
 	if err = task.MergePDFFiles(cmdConfig); err != nil {
-		runtime.SetError(fmt.Errorf("merging all PDF files: %s", err))
-		runtime.Exit()
+		return fmt.Errorf("merging all PDF files: %s", err)
 	}
 
 	// Time
@@ -96,4 +83,6 @@ func execRoot(cmd *cobra.Command, args []string) {
 
 	// End
 	fmt.Printf("\nDone, full PDF file generated at: %s\n\n", cmdConfig.TargetFile)
+
+	return nil
 }
