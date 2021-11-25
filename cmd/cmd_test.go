@@ -7,10 +7,6 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-const (
-	testBasePath = "../build/test"
-)
-
 var _ = Describe("Cmd", func() {
 
 	Context("Execute command", func() {
@@ -120,8 +116,8 @@ var _ = Describe("Cmd", func() {
 				Expect(rootCmd).To(Not(BeNil()))
 				Expect(err).To(BeNil())
 
-				rootCmd.SetArgs([]string{"--publishFile", testBasePath + "/not-valid-ws-pub-pdf.yaml",
-					"--targetPath", testBasePath + "/out"})
+				rootCmd.SetArgs([]string{"--publishFile", test.TestBasePath + "/not-valid-ws-pub-pdf.yaml",
+					"--targetPath", test.TestBasePath + "/out"})
 				testCtx.OpenOutCapture()
 				rootCmd.Execute()
 				result, errResult := testCtx.CloseOutCapture(true, 500)
@@ -143,8 +139,8 @@ var _ = Describe("Cmd", func() {
 				Expect(rootCmd).To(Not(BeNil()))
 				Expect(err).To(BeNil())
 
-				rootCmd.SetArgs([]string{"--publishFile", testBasePath + "/ws-pub-pdf-test.yaml",
-					"--targetPath", testBasePath + "/out"})
+				rootCmd.SetArgs([]string{"--publishFile", test.TestBasePath + "/ws-pub-pdf-test.yaml",
+					"--targetPath", test.TestBasePath + "/out"})
 				testCtx.OpenOutCapture()
 				rootCmd.Execute()
 				result, errResult := testCtx.CloseOutCapture(true, 500)
@@ -156,10 +152,10 @@ var _ = Describe("Cmd", func() {
 				Expect(result).Should(ContainSubstring("Config:"))
 				Expect(result).Should(ContainSubstring("/test.pdf"))
 
-				Expect(testBasePath + "/out").Should(BeADirectory())
-				Expect(testBasePath + "/out/url").Should(BeADirectory())
-				Expect(testBasePath + "/out/url/boe.pdf").Should(BeARegularFile())
-				Expect(testBasePath + "/out/test.pdf").Should(BeARegularFile())
+				Expect(test.TestBasePath + "/out").Should(BeADirectory())
+				Expect(test.TestBasePath + "/out/url").Should(BeADirectory())
+				Expect(test.TestBasePath + "/out/url/boe.pdf").Should(BeARegularFile())
+				Expect(test.TestBasePath + "/out/test.pdf").Should(BeARegularFile())
 
 			})
 

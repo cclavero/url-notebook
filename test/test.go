@@ -9,6 +9,10 @@ import (
 	"github.com/onsi/ginkgo"
 )
 
+const (
+	TestBasePath = "../build/test"
+)
+
 type TestCtx struct {
 	stdout    *os.File
 	stderr    *os.File
