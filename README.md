@@ -15,33 +15,22 @@ WebSite PDF Publish: Simple command line tool to publish a set of HTML pages to 
 
 Current version: 1.0-alpha
 
-
-
-
---- TEMPORAL
-
-- https://goreportcard.com/report/github.com/cclavero/ws-pdf-publish
-
-- Example:
-
-
-[![Go Report Card](https://goreportcard.com/badge/github.com/spf13/viper?style=flat-square)](https://goreportcard.com/report/github.com/spf13/viper)
-
-
---- TEMPORAL
-
-- https://raw.githubusercontent.com/spf13/viper/master/README.md
-
---- TEMPORAL: REVISAR
-
-Diari personal utilitzant Hugo per les Notes d'inxes
-
-## Recursos
+## Resources
 
 - https://github.com/spf13/viper
 - https://github.com/onsi/ginkgo
 - https://github.com/pdfcpu/pdfcpu
 - https://wkhtmltopdf.org
+
+
+
+
+--- TEMPORAL: REVISAR i copiar de https://github.com/spf13/viper
+
+Diari personal utilitzant Hugo per les Notes d'inxes
+
+## Recursos
+
 
 
 
