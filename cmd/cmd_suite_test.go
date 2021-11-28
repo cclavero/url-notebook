@@ -1,3 +1,5 @@
+// +build test
+
 package cmd_test
 
 import (

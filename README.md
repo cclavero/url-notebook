@@ -163,15 +163,5 @@ $ make install
 
 --- TEMPORAL
 
-$ PATH=${PATH}:~/go/bin GOPATH=~/go ginkgo bootstrap
-$ PATH=${PATH}:~/go/bin GOPATH=~/go ginkgo generate
-
-
---- TEMPORAL
-
-$ go run -ldflags="-X 'github.com/cclavero/ws-pdf-publish/cmd.Version=1.0-alpha'" ./main.go --publishFile ./build/test/ws-pub-pdf-test.yaml --targetPath ./build/test/out
-
---- TEMPORAL
-
-$ go test -v -failfast -count=1 .
+$ go test -v -failfast -count=1 -tags="test" .
 

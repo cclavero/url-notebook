@@ -3,20 +3,10 @@ package task
 import (
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 
 	"github.com/cclavero/ws-pdf-publish/config"
 )
-
-func execSystemCommand(cmdStr string) (string, error) {
-	cmd := exec.Command("/bin/bash", "-c", cmdStr)
-	stdout, err := cmd.CombinedOutput()
-	if err != nil {
-		return "", fmt.Errorf("system command: '%s'; %s", cmdStr, err)
-	}
-	return string(stdout), nil
-}
 
 func InitTargetPath(cmdConfig *config.CmdConfig) error {
 	// Target path

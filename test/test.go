@@ -5,6 +5,8 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"os/exec"
+	"path/filepath"
 
 	"github.com/onsi/ginkgo"
 )
@@ -13,7 +15,45 @@ const (
 	TestBasePath = "../build/test"
 )
 
-type TestCtx struct {
+// Global
+
+func GetAbsPath(path string) string {
+	absPath, err := filepath.Abs(path)
+	if err != nil {
+		ginkgo.Fail(err.Error())
+	}
+	return absPath
+}
+
+func RemoveAbsPath(path string) {
+	if err := os.RemoveAll(path); err != nil {
+		ginkgo.Fail(err.Error())
+	}
+}
+
+func CopyFileToAbsPath(srcFile string, path string, trgFileName string) {
+	trgFilePath := filepath.Join(path, trgFileName)
+	bytesRead, err := ioutil.ReadFile(srcFile)
+	if err != nil {
+		ginkgo.Fail(err.Error())
+	}
+	if err = ioutil.WriteFile(trgFilePath, bytesRead, 0644); err != nil {
+		ginkgo.Fail(err.Error())
+	}
+}
+
+func ExecSysCommand(cmdStr string) string {
+	cmd := exec.Command("/bin/bash", "-c", cmdStr)
+	stdout, err := cmd.CombinedOutput()
+	if err != nil {
+		ginkgo.Fail(err.Error())
+	}
+	return string(stdout)
+}
+
+// TestCmdCtx
+
+type TestCmdCtx struct {
 	stdout    *os.File
 	stderr    *os.File
 	outReader *os.File
@@ -22,57 +62,57 @@ type TestCtx struct {
 	errWriter *os.File
 }
 
-func NewTestCtx() *TestCtx {
-	return &TestCtx{}
+func NewTestCmdCtx() *TestCmdCtx {
+	return &TestCmdCtx{}
 }
 
-func (testCtx *TestCtx) OpenOutCapture() {
+func (testCmdCtx *TestCmdCtx) OpenOutCapture() {
 	var err error
 
-	testCtx.stdout = os.Stdout
-	testCtx.stderr = os.Stderr
+	testCmdCtx.stdout = os.Stdout
+	testCmdCtx.stderr = os.Stderr
 
-	if testCtx.outReader, testCtx.outWriter, err = os.Pipe(); err != nil {
+	if testCmdCtx.outReader, testCmdCtx.outWriter, err = os.Pipe(); err != nil {
 		ginkgo.Fail(fmt.Sprintf("unexpected error: %s", err))
 	}
-	if testCtx.errReader, testCtx.errWriter, err = os.Pipe(); err != nil {
+	if testCmdCtx.errReader, testCmdCtx.errWriter, err = os.Pipe(); err != nil {
 		ginkgo.Fail(fmt.Sprintf("unexpected error: %s", err))
 	}
 
-	os.Stdout = testCtx.outWriter
-	os.Stderr = testCtx.errWriter
+	os.Stdout = testCmdCtx.outWriter
+	os.Stderr = testCmdCtx.errWriter
 }
 
-func (testCtx *TestCtx) CloseOutCapture(logResults bool, limit int) (result string, errResult string) {
+func (testCmdCtx *TestCmdCtx) CloseOutCapture(logResults bool, limit int) (result string, errResult string) {
 	var out []byte
 	var outError []byte
 	var err error
 
-	testCtx.outWriter.Close()
-	if out, err = ioutil.ReadAll(testCtx.outReader); err != nil {
+	testCmdCtx.outWriter.Close()
+	if out, err = ioutil.ReadAll(testCmdCtx.outReader); err != nil {
 		ginkgo.Fail(fmt.Sprintf("unexpected error: %s", err))
 	}
 
-	testCtx.errWriter.Close()
-	if outError, err = ioutil.ReadAll(testCtx.errReader); err != nil {
+	testCmdCtx.errWriter.Close()
+	if outError, err = ioutil.ReadAll(testCmdCtx.errReader); err != nil {
 		ginkgo.Fail(fmt.Sprintf("unexpected error: %s", err))
 	}
 
-	os.Stdout = testCtx.stdout
-	os.Stderr = testCtx.stderr
+	os.Stdout = testCmdCtx.stdout
+	os.Stderr = testCmdCtx.stderr
 
 	result = string(out)
 	errResult = string(outError)
 
 	if logResults {
-		testCtx.logResult(result, limit)
-		testCtx.logErrorResult(errResult)
+		testCmdCtx.logResult(result, limit)
+		testCmdCtx.logErrorResult(errResult)
 	}
 
 	return result, errResult
 }
 
-func (testCtx *TestCtx) logResult(message string, limit int) {
+func (testCmdCtx *TestCmdCtx) logResult(message string, limit int) {
 	if message == "" {
 		log.Print("Result: Empty string\n\n")
 	} else {
@@ -84,7 +124,7 @@ func (testCtx *TestCtx) logResult(message string, limit int) {
 	}
 }
 
-func (testCtx *TestCtx) logErrorResult(message string) {
+func (testCmdCtx *TestCmdCtx) logErrorResult(message string) {
 	if message == "" {
 		log.Print("Error: No error\n\n")
 	} else {

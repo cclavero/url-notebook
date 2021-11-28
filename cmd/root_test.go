@@ -1,7 +1,12 @@
+// +build test
+
 package cmd_test
 
 import (
+	"path/filepath"
+
 	"github.com/cclavero/ws-pdf-publish/cmd"
+	"github.com/cclavero/ws-pdf-publish/config"
 	"github.com/cclavero/ws-pdf-publish/test"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -21,7 +26,7 @@ var _ = Describe("Cmd", func() {
 
 			It("should work with '-h' parameter and show the help result", func() {
 
-				testCtx := test.NewTestCtx()
+				testCmdCtx := test.NewTestCmdCtx()
 
 				rootCmd, err := cmd.NewRootCmd()
 
@@ -29,9 +34,9 @@ var _ = Describe("Cmd", func() {
 				Expect(err).To(BeNil())
 
 				rootCmd.SetArgs([]string{"-h"})
-				testCtx.OpenOutCapture()
+				testCmdCtx.OpenOutCapture()
 				rootCmd.Execute()
-				result, errResult := testCtx.CloseOutCapture(true, 360)
+				result, errResult := testCmdCtx.CloseOutCapture(true, 360)
 
 				Expect(result).To(Not(Equal("")))
 				Expect(errResult).To(Equal(""))
@@ -44,7 +49,7 @@ var _ = Describe("Cmd", func() {
 
 			It("should work with '-v' parameter and show version", func() {
 
-				testCtx := test.NewTestCtx()
+				testCmdCtx := test.NewTestCmdCtx()
 
 				rootCmd, err := cmd.NewRootCmd()
 
@@ -52,9 +57,9 @@ var _ = Describe("Cmd", func() {
 				Expect(err).To(BeNil())
 
 				rootCmd.SetArgs([]string{"-v"})
-				testCtx.OpenOutCapture()
+				testCmdCtx.OpenOutCapture()
 				rootCmd.Execute()
-				result, errResult := testCtx.CloseOutCapture(true, 200)
+				result, errResult := testCmdCtx.CloseOutCapture(true, 200)
 
 				Expect(result).To(Not(Equal("")))
 				Expect(errResult).To(Equal(""))
@@ -65,7 +70,7 @@ var _ = Describe("Cmd", func() {
 
 			It("should fail because setting bad flag", func() {
 
-				testCtx := test.NewTestCtx()
+				testCmdCtx := test.NewTestCmdCtx()
 
 				rootCmd, err := cmd.NewRootCmd()
 
@@ -73,9 +78,9 @@ var _ = Describe("Cmd", func() {
 				Expect(err).To(BeNil())
 
 				rootCmd.SetArgs([]string{"--bad-flag"})
-				testCtx.OpenOutCapture()
+				testCmdCtx.OpenOutCapture()
 				rootCmd.Execute()
-				result, errResult := testCtx.CloseOutCapture(true, 100)
+				result, errResult := testCmdCtx.CloseOutCapture(true, 100)
 
 				Expect(result).To(Equal(""))
 				Expect(errResult).To(Not(Equal("")))
@@ -87,7 +92,7 @@ var _ = Describe("Cmd", func() {
 
 			It("should fail because missing required flags", func() {
 
-				testCtx := test.NewTestCtx()
+				testCmdCtx := test.NewTestCmdCtx()
 
 				rootCmd, err := cmd.NewRootCmd()
 
@@ -95,9 +100,9 @@ var _ = Describe("Cmd", func() {
 				Expect(err).To(BeNil())
 
 				rootCmd.SetArgs([]string{})
-				testCtx.OpenOutCapture()
+				testCmdCtx.OpenOutCapture()
 				rootCmd.Execute()
-				result, errResult := testCtx.CloseOutCapture(true, 100)
+				result, errResult := testCmdCtx.CloseOutCapture(true, 100)
 
 				Expect(result).To(Equal(""))
 				Expect(errResult).To(Not(Equal("")))
@@ -109,7 +114,7 @@ var _ = Describe("Cmd", func() {
 
 			It("should fail with invalid flags", func() {
 
-				testCtx := test.NewTestCtx()
+				testCmdCtx := test.NewTestCmdCtx()
 
 				rootCmd, err := cmd.NewRootCmd()
 
@@ -117,10 +122,10 @@ var _ = Describe("Cmd", func() {
 				Expect(err).To(BeNil())
 
 				rootCmd.SetArgs([]string{"--publishFile", test.TestBasePath + "/not-valid-ws-pub-pdf.yaml",
-					"--targetPath", test.TestBasePath + "/out"})
-				testCtx.OpenOutCapture()
+					"--targetPath", test.TestBasePath + "/out-cmd"})
+				testCmdCtx.OpenOutCapture()
 				rootCmd.Execute()
-				result, errResult := testCtx.CloseOutCapture(true, 500)
+				result, errResult := testCmdCtx.CloseOutCapture(true, 500)
 
 				Expect(result).To(Equal(""))
 				Expect(errResult).To(Not(Equal("")))
@@ -132,18 +137,19 @@ var _ = Describe("Cmd", func() {
 
 			It("should work with valid flags", func() {
 
-				testCtx := test.NewTestCtx()
+				testCmdCtx := test.NewTestCmdCtx()
 
 				rootCmd, err := cmd.NewRootCmd()
 
 				Expect(rootCmd).To(Not(BeNil()))
 				Expect(err).To(BeNil())
 
+				targetPathOut := filepath.Join(test.TestBasePath, "out")
 				rootCmd.SetArgs([]string{"--publishFile", test.TestBasePath + "/ws-pub-pdf-test.yaml",
-					"--targetPath", test.TestBasePath + "/out"})
-				testCtx.OpenOutCapture()
+					"--targetPath", targetPathOut})
+				testCmdCtx.OpenOutCapture()
 				rootCmd.Execute()
-				result, errResult := testCtx.CloseOutCapture(true, 500)
+				result, errResult := testCmdCtx.CloseOutCapture(true, 500)
 
 				Expect(result).To(Not(Equal("")))
 				Expect(errResult).To(Equal(""))
@@ -152,10 +158,11 @@ var _ = Describe("Cmd", func() {
 				Expect(result).Should(ContainSubstring("Config:"))
 				Expect(result).Should(ContainSubstring("/test.pdf"))
 
-				Expect(test.TestBasePath + "/out").Should(BeADirectory())
-				Expect(test.TestBasePath + "/out/url").Should(BeADirectory())
-				Expect(test.TestBasePath + "/out/url/boe.pdf").Should(BeARegularFile())
-				Expect(test.TestBasePath + "/out/test.pdf").Should(BeARegularFile())
+				Expect(targetPathOut).Should(BeADirectory())
+				targetPathOutURL := filepath.Join(targetPathOut, config.URLFolder)
+				Expect(targetPathOutURL).Should(BeADirectory())
+				Expect(targetPathOutURL + "/boe.pdf").Should(BeARegularFile())
+				Expect(targetPathOut + "/test.pdf").Should(BeARegularFile())
 
 			})
 

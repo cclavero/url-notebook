@@ -1,14 +1,10 @@
-publish:
+bad-publish:
   # Name of the final PDF file
   file: test.pdf
   # List of URLs to process
   urls: 
     - url: https://www.boe.es/boe/dias/2021/11/12/index.php?l=DA
       file: boe.pdf
-    - url: https://www.wired.com
-      file: wired.pdf  
-    - url: https://www.palettepoetry.com/2021/11/10/the-gallery-of-america
-      file: poetry.pdf
   # Parameters for the docker execution
   dockerParams: 
   # Parameters for the wkhtmltopdf utility    

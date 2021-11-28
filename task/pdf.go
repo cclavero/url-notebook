@@ -2,6 +2,7 @@ package task
 
 import (
 	"fmt"
+	"os/exec"
 	"path/filepath"
 
 	"github.com/cclavero/ws-pdf-publish/config"
@@ -9,12 +10,11 @@ import (
 )
 
 const (
-	dockerImageVersion  = "ws-pdf-publish"
-	dockerImage         = "wkhtmltopdf:" + dockerImageVersion
+	DockerImage         = "wkhtmltopdf"
 	dockerCheckCmd      = "docker version"
-	dockerCheckImageCmd = "docker image inspect " + dockerImage
-	dockerBuildCmd      = "docker build --tag " + dockerImage + " -f - . %s"
-	dockerRunCmd        = "docker run -u %s:%s -v %s:/out %s --name " + dockerImageVersion + " --rm " + dockerImage + " %s %s /out/%s"
+	dockerCheckImageCmd = "docker image inspect %s"
+	dockerBuildCmd      = "docker build --tag %s -f - . %s"
+	dockerRunCmd        = "docker run -u %%s:%%s -v %%s:/out %%s --rm %s %%s %%s /out/%%s"
 	dockerFile          = `<<EOF
 FROM ubuntu:20.04
 
@@ -32,17 +32,35 @@ EOF
 `
 )
 
-func CheckWkhtmltoPDFDocker() error {
+type PDFTask struct {
+	dockerImage         string
+	dockerCheckCmd      string
+	dockerCheckImageCmd string
+	dockerBuildCmd      string
+	dockerRunCmd        string
+}
+
+func NewPDFTask(dockerImageTag string) *PDFTask {
+	dockerImageWithTag := fmt.Sprintf("%s:%s", DockerImage, dockerImageTag)
+	return &PDFTask{
+		dockerImage:         dockerImageWithTag,
+		dockerCheckCmd:      dockerCheckCmd,
+		dockerCheckImageCmd: fmt.Sprintf(dockerCheckImageCmd, dockerImageWithTag),
+		dockerBuildCmd:      fmt.Sprintf(dockerBuildCmd, dockerImageWithTag, dockerFile),
+		dockerRunCmd:        fmt.Sprintf(dockerRunCmd, dockerImageWithTag),
+	}
+}
+
+func (pdfTask *PDFTask) CheckWkhtmltoPDFDocker() error {
 	// Check docker is installed
-	if _, err := execSystemCommand(dockerCheckCmd); err != nil {
+	if _, err := pdfTask.execDockerCommand(pdfTask.dockerCheckCmd); err != nil {
 		return fmt.Errorf("checking docker is installed: %s", err)
 	}
 
 	// Check if the docker image exists; if not build it
-	if _, err := execSystemCommand(dockerCheckImageCmd); err != nil {
+	if _, err := pdfTask.execDockerCommand(pdfTask.dockerCheckImageCmd); err != nil {
 		fmt.Println("Building 'wkhtmltopdf' docker image ...")
-		dockerBuildCmdCmd := fmt.Sprintf(dockerBuildCmd, dockerFile)
-		_, err := execSystemCommand(dockerBuildCmdCmd)
+		_, err := pdfTask.execDockerCommand(pdfTask.dockerBuildCmd)
 		if err != nil {
 			return fmt.Errorf("building wkhtmltopdf docker image: %s", err)
 		}
@@ -51,18 +69,29 @@ func CheckWkhtmltoPDFDocker() error {
 	return nil
 }
 
-func PublishURLAsPDF(cmdConfig *config.CmdConfig, index int, publishURL config.PublishURL) error {
-	targetFile := filepath.Join(cmdConfig.TargetPathURL, publishURL.File)
-	fmt.Printf("\t[%d] Publishing %s to %s ...\n", index, publishURL.URL, targetFile)
-	dockerRunCmdCmd := fmt.Sprintf(dockerRunCmd, cmdConfig.UserUID, cmdConfig.UserGID, cmdConfig.TargetPathURL,
-		cmdConfig.PublishData.DockerParams, cmdConfig.PublishData.WkhtmltopdfParams, publishURL.URL, publishURL.File)
-	if _, err := execSystemCommand(dockerRunCmdCmd); err != nil {
-		return fmt.Errorf("generating PDF file: %s", err)
+func (pdfTask *PDFTask) PublishURLsAsPDF(cmdConfig *config.CmdConfig) error {
+	for index, pub := range cmdConfig.PublishData.URLList {
+		targetFile := filepath.Join(cmdConfig.TargetPathURL, pub.File)
+		fmt.Printf("\t[%d] Publishing %s to %s ...\n", index+1, pub.URL, targetFile)
+		dockerRunCmd := fmt.Sprintf(pdfTask.dockerRunCmd, cmdConfig.UserUID, cmdConfig.UserGID, cmdConfig.TargetPathURL,
+			cmdConfig.PublishData.DockerParams, cmdConfig.PublishData.WkhtmltopdfParams, pub.URL, pub.File)
+		if _, err := pdfTask.execDockerCommand(dockerRunCmd); err != nil {
+			return fmt.Errorf("generating PDF file: %s", err)
+		}
 	}
 	return nil
 }
 
-func MergePDFFiles(cmdConfig *config.CmdConfig) error {
+func (pdfTask *PDFTask) execDockerCommand(cmdStr string) (string, error) {
+	cmd := exec.Command("/bin/bash", "-c", cmdStr)
+	stdout, err := cmd.CombinedOutput()
+	if err != nil {
+		return "", fmt.Errorf("system command: '%s'; %s", cmdStr, err)
+	}
+	return string(stdout), nil
+}
+
+func (pdfTask *PDFTask) MergePDFFiles(cmdConfig *config.CmdConfig) error {
 	inFiles := []string{}
 	for _, pub := range cmdConfig.PublishData.URLList {
 		inFiles = append(inFiles, filepath.Join(cmdConfig.TargetPathURL, pub.File))

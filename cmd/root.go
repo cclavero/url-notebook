@@ -9,6 +9,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const (
+	dockerImageTag = "ws-pdf-publish"
+)
+
 var (
 	Version = "devel"
 )
@@ -52,9 +56,12 @@ func execRoot(cmd *cobra.Command, args []string) error {
 	fmt.Printf("Config: %s", fmt.Sprintf(config.ConfigInfoStr, cmdConfig.UserUID, cmdConfig.UserGID, cmdConfig.TargetPath,
 		cmdConfig.TargetPathURL, cmdConfig.TargetFile, cmdConfig.PublishData))
 
+	// Get PDF task
+	pdfTask := task.NewPDFTask(dockerImageTag)
+
 	// Build 'wkhtmltopdf' docker image
 	fmt.Println("Checking 'wkhtmltopdf' docker image ...")
-	if err = task.CheckWkhtmltoPDFDocker(); err != nil {
+	if err = pdfTask.CheckWkhtmltoPDFDocker(); err != nil {
 		return fmt.Errorf("building wkhtmltopdf docker image: %s", err)
 	}
 
@@ -66,15 +73,13 @@ func execRoot(cmd *cobra.Command, args []string) error {
 
 	// Publish all URLs
 	fmt.Println("Publish all URLs:")
-	for index, pub := range cmdConfig.PublishData.URLList {
-		if err = task.PublishURLAsPDF(cmdConfig, index+1, pub); err != nil {
-			return fmt.Errorf("publishing URL as PDF: %s", err)
-		}
+	if err = pdfTask.PublishURLsAsPDF(cmdConfig); err != nil {
+		return fmt.Errorf("publishing all URLs as PDF: %s", err)
 	}
 
 	// Merge all PDF files
 	fmt.Println("Merge all PDF files ...")
-	if err = task.MergePDFFiles(cmdConfig); err != nil {
+	if err = pdfTask.MergePDFFiles(cmdConfig); err != nil {
 		return fmt.Errorf("merging all PDF files: %s", err)
 	}
 

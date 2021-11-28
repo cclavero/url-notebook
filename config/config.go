@@ -14,7 +14,7 @@ const (
 	WSPDFpublishCmd = "ws-pdf-publish"
 	PublishFileFlag = "publishFile"
 	TargetPathFlag  = "targetPath"
-	urlFolder       = "url"
+	URLFolder       = "url"
 	ConfigInfoStr   = "\n\t- userUID: %s\n\t- userGID: %s\n\t- targetPath: %s\n\t- targetPathURL: %s\n" +
 		"\t- targetFile: %s\n\t- publishData: %+v\n"
 )
@@ -62,7 +62,7 @@ func GetCmdConfig(cmd *cobra.Command) (*CmdConfig, error) {
 		UserUID:       strconv.Itoa(os.Getuid()),
 		UserGID:       strconv.Itoa(os.Getgid()),
 		TargetPath:    targetPath,
-		TargetPathURL: filepath.Join(targetPath, urlFolder),
+		TargetPathURL: filepath.Join(targetPath, URLFolder),
 	}
 	if cmdConfig.PublishData, err = getPublishData(publishFile); err != nil {
 		return nil, fmt.Errorf("getting publish data: '%s'; %s", publishFile, err)
@@ -76,6 +76,9 @@ func getFlagValue(cmd *cobra.Command, flagID string) (string, error) {
 	flagValue, err := cmd.Flags().GetString(flagID)
 	if err != nil {
 		return "", fmt.Errorf("getting '%s' flag value: %s", flagID, err)
+	}
+	if flagValue == "" { // Error
+		return "", fmt.Errorf("getting '%s' empty flag value", flagID)
 	}
 	return flagValue, nil
 }

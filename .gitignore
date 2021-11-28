@@ -4,8 +4,4 @@ build/bin/*
 !build/bin/.gitkeep
 build/report/*
 !build/report/.gitkeep
-build/test/out/*
-!build/test/out/.gitkeep
-
-# Mac
-.DS_Store
+build/test/out*
