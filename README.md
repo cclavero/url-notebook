@@ -1,4 +1,4 @@
-# ws-pdf-publish
+# ws-pdf-publish: WebSite PDF Publish
 
 @author Carles Clavero i Matas - carles.clavero@gmail.com
 
@@ -9,7 +9,7 @@
 ![License](https://img.shields.io/badge/license-MIT-green)
 [![Go Report Card](https://goreportcard.com/badge/github.com/cclavero/ws-pdf-publish)](https://goreportcard.com/report/github.com/cclavero/ws-pdf-publish)
 ![Tests](https://img.shields.io/badge/tests-passed-green)
-![Coverage](https://img.shields.io/badge/coverage-80%-green)
+![Coverage](https://img.shields.io/badge/coverage-80%25-green)
 
 WebSite PDF Publish: Simple command line tool to publish a set of HTML pages to PDF.
 
