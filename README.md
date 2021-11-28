@@ -1,9 +1,36 @@
 # ws-pdf-publish
 
 @author Carles Clavero i Matas - carles.clavero@gmail.com
-@date 13/11/2021
+
+@date 2021-11-28
+
+![Go Version](https://img.shields.io/badge/go-ver%3E=1.16-informational)
+![Docker](https://img.shields.io/badge/docker-ver%3E=20-informational)
+![License](https://img.shields.io/badge/license-MIT-green)
+[![Go Report Card](https://goreportcard.com/badge/github.com/cclavero/ws-pdf-publish)](https://goreportcard.com/report/github.com/cclavero/ws-pdf-publish)
+![Tests](https://img.shields.io/badge/tests-passed-green)
+![Coverage](https://img.shields.io/badge/coverage-80%-green)
+
+WebSite PDF Publish: Simple command line tool to publish a set of HTML pages to PDF.
+
+Current version: 1.0-alpha
 
 
+
+
+--- TEMPORAL
+
+- https://goreportcard.com/report/github.com/cclavero/ws-pdf-publish
+
+- Example:
+
+
+[![Go Report Card](https://goreportcard.com/badge/github.com/spf13/viper?style=flat-square)](https://goreportcard.com/report/github.com/spf13/viper)
+
+
+--- TEMPORAL
+
+- https://raw.githubusercontent.com/spf13/viper/master/README.md
 
 --- TEMPORAL: REVISAR
 
@@ -11,17 +38,11 @@ Diari personal utilitzant Hugo per les Notes d'inxes
 
 ## Recursos
 
-- https://hub.docker.com/r/klakegg/hugo/
-- https://gohugo.io/getting-started/quick-start/
-- https://gohugo.io/getting-started/directory-structure/
-- https://www.freecodecamp.org/news/your-first-hugo-blog-a-practical-guide/
-- https://desarrolloweb.com/articulos/primeros-pasos-hugo
-- https://github.com/alex-shpak/hugo-book
-- https://hugo-book-demo.netlify.app/docs/shortcodes/columns/
-- https://www.markdownguide.org/basic-syntax
-- https://gohugo.io/content-management/shortcodes/
-
+- https://github.com/spf13/viper
 - https://github.com/onsi/ginkgo
+- https://github.com/pdfcpu/pdfcpu
+- https://wkhtmltopdf.org
+
 
 
 ## Prerequisits
