@@ -8,6 +8,7 @@ import (
 	"github.com/cclavero/ws-pdf-publish/config"
 )
 
+// InitTargetPath function to init the target path for the generated PDF files
 func InitTargetPath(cmdConfig *config.CmdConfig) error {
 	// Target path
 	if _, err := os.Stat(cmdConfig.TargetPath); os.IsNotExist(err) {

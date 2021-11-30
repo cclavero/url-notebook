@@ -11,12 +11,14 @@ import (
 	"github.com/onsi/ginkgo"
 )
 
+// Global tests constants
 const (
 	TestBasePath = "../build/test"
 )
 
 // Global
 
+// GetAbsPath function to get an absolute path from a relative path
 func GetAbsPath(path string) string {
 	absPath, err := filepath.Abs(path)
 	if err != nil {
@@ -25,12 +27,14 @@ func GetAbsPath(path string) string {
 	return absPath
 }
 
+// RemoveAbsPath function to remove one absolute path
 func RemoveAbsPath(path string) {
 	if err := os.RemoveAll(path); err != nil {
 		ginkgo.Fail(err.Error())
 	}
 }
 
+// CopyFileToAbsPath function to copy one file to an absolute path
 func CopyFileToAbsPath(srcFile string, path string, trgFileName string) {
 	trgFilePath := filepath.Join(path, trgFileName)
 	bytesRead, err := ioutil.ReadFile(srcFile)
@@ -42,6 +46,7 @@ func CopyFileToAbsPath(srcFile string, path string, trgFileName string) {
 	}
 }
 
+// ExecSysCommand function to executeone command in the system
 func ExecSysCommand(cmdStr string) string {
 	cmd := exec.Command("/bin/bash", "-c", cmdStr)
 	stdout, err := cmd.CombinedOutput()
@@ -53,6 +58,7 @@ func ExecSysCommand(cmdStr string) string {
 
 // TestCmdCtx
 
+// TestCmdCtx struct
 type TestCmdCtx struct {
 	stdout    *os.File
 	stderr    *os.File
@@ -62,10 +68,12 @@ type TestCmdCtx struct {
 	errWriter *os.File
 }
 
+// NewTestCmdCtx function to get a new TestCmdCtx instance
 func NewTestCmdCtx() *TestCmdCtx {
 	return &TestCmdCtx{}
 }
 
+// OpenOutCapture method to open a new stdout and stderr capture
 func (testCmdCtx *TestCmdCtx) OpenOutCapture() {
 	var err error
 
@@ -83,6 +91,7 @@ func (testCmdCtx *TestCmdCtx) OpenOutCapture() {
 	os.Stderr = testCmdCtx.errWriter
 }
 
+// CloseOutCapture method to close the stdout and stderr capture and get the results
 func (testCmdCtx *TestCmdCtx) CloseOutCapture(logResults bool, limit int) (result string, errResult string) {
 	var out []byte
 	var outError []byte
