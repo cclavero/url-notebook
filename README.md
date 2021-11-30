@@ -15,19 +15,12 @@ WebSite PDF Publish: Simple command line tool to publish a set of HTML pages to 
 
 Current version: 1.0-alpha
 
-## Requirements
+## Install & usage
+
+### Requirements
 
 - Golang env ver. >=1.16: https://go.dev, https://github.com/moovweb/gvm
 - Docker runtime ver. >= 20: https://docker.com 
-
-## Resources
-
-- https://github.com/spf13/viper
-- https://github.com/onsi/ginkgo
-- https://github.com/pdfcpu/pdfcpu
-- https://wkhtmltopdf.org
-
-## Install & usage
 
 ### Install 'ws-pdf-publish' command
 
@@ -76,44 +69,43 @@ ws-pdf-publish version 1.0-alpha
 To execute the command, you need to set the `publishFile` and `targetPath` flags, as a example:
 
 ```bash
-$ ws-pdf-publish --publishFile ./build/test/ws-pub-pdf-test.yaml --targetPath /tmp/ws-pub-pdf
+$ ws-pdf-publish --publishFile ./build/test/ws-pub-pdf-example.yaml --targetPath /tmp/ws-pub-pdf
 Starting ...
 ...
-Done, full PDF file generated at: /tmp/ws-pub-pdf/test.pdf
+Done, full PDF file generated at: /tmp/ws-pub-pdf/go-refs.pdf
 ```
 
 When the command execution finishes, you will find the PDF file for each URL defined under the `url` tag (partial PDFs, in the publish file under the `targetPath` 'url' subfolder) and the final resultant PDF file (in the `targetPath`):
 
 ```bash
 $ ls -la /tmp/ws-pub-pdf/url
-total 2888
-drwxr-xr-x  3 clavero  wheel       96 Nov 30 16:40 .
-drwxr-xr-x  4 clavero  wheel      128 Nov 30 16:40 ..
--rw-r--r--  1 clavero  wheel  1478549 Nov 30 16:40 boe.pdf
-...
-$ ls -la /tmp/ws-pub-pdf/test.pdf
--rw-r--r--  1 clavero  wheel  1392835 Nov 30 16:40 /tmp/ws-pub-pdf/test.pdf
+total 288
+drwxrwxr-x 2 carolo carolo   4096 Nov 30 18:15 .
+drwxrwxr-x 3 carolo carolo   4096 Nov 30 18:15 ..
+-rw-r--r-- 1 carolo carolo  93276 Nov 30 18:15 go-cobra.pdf
+-rw-r--r-- 1 carolo carolo 189171 Nov 30 18:15 go-viper.pdf
+$ ls -la /tmp/ws-pub-pdf/go-refs.pdf
+-rw-rw-r-- 1 carolo carolo 244153 Nov 30 18:15 /tmp/ws-pub-pdf/go-refs.pdf
 ```
 
 ### Format for the publish YAML file
 
---- TODO: sintaxis i exemple de fitxer
+The format of the publish YAML file is quite simple and self-explanatory. As an example:
 
 ```yaml
 publish:
-  file: notes-inxes.pdf # Name of the final PDF file
-  urls: # List of URLs to process
-    - url: http://notes-inxes:1313/
-      file: portada.pdf
-    - url: http://notes-inxes:1313/docs/esquemes-generals
-      file: esquemes-generals.pdf
-    - url: http://notes-inxes:1313/docs/do-met-gallec/
-      file: do-met-gallec.pdf
-    - url: http://notes-inxes:1313/docs/do-met-escoces/
-      file: do-met-escoces.pdf
-    - url: http://notes-inxes:1313/docs/sol-met-gallec/
-      file: sol-met-gallec.pdf
-  wkhtmltopdfParams: --print-media-type --margin-top 20mm --margin-bottom 20mm # Parameters for the wkhtmltopdf utility    
+  # Name of the final PDF file (merged)
+  file: go-refs.pdf
+  # List of URLs to process (ordered)
+  urls: 
+    - url: https://github.com/spf13/cobra/blob/master/README.md
+      file: go-cobra.pdf
+    - url: https://github.com/spf13/viper/blob/master/README.md
+      file: go-viper.pdf
+  # Parameters for the docker execution
+  dockerParams: 
+  # Parameters for the wkhtmltopdf utility    
+  wkhtmltopdfParams: --print-media-type --margin-top 20mm --margin-bottom 20mm 
 ```
 
 ### Configure the PDF generation with wkhtmltopdf
@@ -124,9 +116,24 @@ You can use the `wkhtmltopdfParams` field in the publish YAML file to set all th
 
 ## Develop
 
+### Resources
+
+- https://github.com/spf13/viper
+- https://github.com/onsi/ginkgo
+- https://github.com/pdfcpu/pdfcpu
+- https://wkhtmltopdf.org
+
+
 ### Project layout
 
---- TEMPORAL
+The project layout is a standard go project layout, with some special folders:
+
+- 'Makefile' and '.env' files: Main Makefile for the develop tasks and env vars definition for the project.
+- '/build' folder: Folder for the local environment developing, with some sub-folders:
+  - '/build/bin': Folder for the command generated binary.
+  - '/build/report': Folder for the CI generated reports (jUnit test files, Coverage files, including HTML report, etc).
+  - '/build/test': Folder for test resource files and used as base folder for testing.
+- '/test': go sourcecode only for testing (test functions and utilities).   
 
 ### Makefile tasks
 
@@ -155,6 +162,6 @@ $ make ci
 3. Execute the `run` task to compile and run the current source code for testing:
 
 ```bash
-$ ARGS="--publishFile ./build/test/ws-pub-pdf-test.yaml --targetPath ./build/test/out-cmd" make run
+$ ARGS="--publishFile ./build/test/ws-pub-pdf-example.yaml --targetPath ./build/test/out" make run
 ...
 ```

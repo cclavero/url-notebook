@@ -1,0 +1,13 @@
+publish:
+  # Name of the final PDF file
+  file: go-refs.pdf
+  # List of URLs to process (ordered)
+  urls: 
+    - url: https://github.com/spf13/cobra/blob/master/README.md
+      file: go-cobra.pdf
+    - url: https://github.com/spf13/viper/blob/master/README.md
+      file: go-viper.pdf
+  # Parameters for the docker execution
+  dockerParams: 
+  # Parameters for the wkhtmltopdf utility    
+  wkhtmltopdfParams: --print-media-type --margin-top 20mm --margin-bottom 20mm 

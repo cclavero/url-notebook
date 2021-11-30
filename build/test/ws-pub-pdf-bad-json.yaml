@@ -1,11 +1,7 @@
 publish
-  # Name of the final PDF file
   file: test.pdf
-  # List of URLs to process
   urls: 
     - url: https://www.boe.es/boe/dias/2021/11/12/index.php?l=DA
       file: boe.pdf
-  # Parameters for the docker execution
   dockerParams: 
-  # Parameters for the wkhtmltopdf utility    
   wkhtmltopdfParams: --print-media-type --margin-top 20mm --margin-bottom 20mm 
