@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/viper"
 )
 
+// Global constants
 const (
 	WSPDFpublishCmd = "ws-pdf-publish"
 	PublishFileFlag = "publishFile"
@@ -19,11 +20,13 @@ const (
 		"\t- targetFile: %s\n\t- publishData: %+v\n"
 )
 
+// PublishURL struct
 type PublishURL struct {
 	URL  string `yaml:"url"`
 	File string `yaml:"file"`
 }
 
+// PublishData struct
 type PublishData struct {
 	File              string       `yaml:"file"`
 	URLList           []PublishURL `mapstructure:"urls"`
@@ -31,6 +34,7 @@ type PublishData struct {
 	WkhtmltopdfParams string       `yaml:"wkhtmltopdfParams"`
 }
 
+// CmdConfig struct
 type CmdConfig struct {
 	UserUID       string
 	UserGID       string
@@ -40,6 +44,7 @@ type CmdConfig struct {
 	PublishData   *PublishData
 }
 
+// GetCmdConfig function to get a new command config instance
 func GetCmdConfig(cmd *cobra.Command) (*CmdConfig, error) {
 	var publishFileFlag, publishFile, targetPathFlag, targetPath string
 	var err error

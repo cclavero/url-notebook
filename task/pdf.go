@@ -10,6 +10,7 @@ import (
 )
 
 const (
+	// DockerImage base for wkhtmltopdf
 	DockerImage         = "wkhtmltopdf"
 	dockerCheckCmd      = "docker version"
 	dockerCheckImageCmd = "docker image inspect %s"
@@ -32,6 +33,7 @@ EOF
 `
 )
 
+// PDFTask struct
 type PDFTask struct {
 	dockerImage         string
 	dockerCheckCmd      string
@@ -40,6 +42,7 @@ type PDFTask struct {
 	dockerRunCmd        string
 }
 
+// NewPDFTask function to get a new PDFTask instance
 func NewPDFTask(dockerImageTag string) *PDFTask {
 	dockerImageWithTag := fmt.Sprintf("%s:%s", DockerImage, dockerImageTag)
 	return &PDFTask{
@@ -51,6 +54,7 @@ func NewPDFTask(dockerImageTag string) *PDFTask {
 	}
 }
 
+// CheckWkhtmltoPDFDocker method to check and/or build a new wkhtmltopdf instance
 func (pdfTask *PDFTask) CheckWkhtmltoPDFDocker() error {
 	// Check docker is installed
 	if _, err := pdfTask.execDockerCommand(pdfTask.dockerCheckCmd); err != nil {
@@ -69,6 +73,7 @@ func (pdfTask *PDFTask) CheckWkhtmltoPDFDocker() error {
 	return nil
 }
 
+// PublishURLsAsPDF method to publish each URL in the list as a single PDF file
 func (pdfTask *PDFTask) PublishURLsAsPDF(cmdConfig *config.CmdConfig) error {
 	for index, pub := range cmdConfig.PublishData.URLList {
 		targetFile := filepath.Join(cmdConfig.TargetPathURL, pub.File)
@@ -91,6 +96,7 @@ func (pdfTask *PDFTask) execDockerCommand(cmdStr string) (string, error) {
 	return string(stdout), nil
 }
 
+// MergePDFFiles method to merge all generated PDF files into one final single PDF file
 func (pdfTask *PDFTask) MergePDFFiles(cmdConfig *config.CmdConfig) error {
 	inFiles := []string{}
 	for _, pub := range cmdConfig.PublishData.URLList {

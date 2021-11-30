@@ -13,10 +13,12 @@ const (
 	dockerImageTag = "ws-pdf-publish"
 )
 
+// Global vars
 var (
 	Version = "devel"
 )
 
+// NewRootCmd function
 func NewRootCmd() (*cobra.Command, error) {
 	rootCmd := &cobra.Command{
 		Use:   config.WSPDFpublishCmd,
