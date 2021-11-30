@@ -1,4 +1,4 @@
-# WebSite PDF Publis (hws-pdf-publish)
+# WebSite PDF Publish: ws-pdf-publish
 
 @author Carles Clavero i Matas - carles.clavero@gmail.com
 
